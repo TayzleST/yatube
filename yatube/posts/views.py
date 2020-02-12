@@ -1,13 +1,18 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
+from django.core.paginator import Paginator
+
 from .models import Post, Group
 from .forms import PostForm
 
 
 def index(request):
-    latest = Post.objects.order_by('-pub_date')[:11]
-    return render(request, 'index.html', {'posts': latest})
+    post_list = Post.objects.order_by("-pub_date").all()
+    paginator = Paginator(post_list, 10) # показывать по 10 записей на странице.
+    page_number = request.GET.get('page') # переменная в URL с номером запрошенной страницы
+    page = paginator.get_page(page_number) # получить записи с нужным смещением
+    return render(request, 'index.html', {'page': page, 'paginator': paginator})
 
 
 def group_posts(request, slug):
