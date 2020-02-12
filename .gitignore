@@ -136,3 +136,4 @@ users/migrations/
  yatube/posts/migrations/0002_auto_20200203_2153.py
  0002_auto_20200203_2153.py
  yatube/posts/migrations/
+ yatube/posts/static/
