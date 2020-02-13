@@ -38,23 +38,29 @@ def new_post(request):
 
 
 def profile(request, username):
-        profile = User.objects.get(username=username)
-        posts_count = Post.objects.filter(author=profile).count()
-        post_list = Post.objects.filter(author=profile).order_by("-pub_date").all()
-        paginator = Paginator(post_list, 5)
-        page_number = request.GET.get('page')
-        page = paginator.get_page(page_number)
-        return render(request, "profile.html", {'profile': profile, 'posts_count': posts_count,
+    profile = User.objects.get(username=username)
+    posts_count = Post.objects.filter(author=profile).count()
+    post_list = Post.objects.filter(author=profile).order_by("-pub_date").all()
+    paginator = Paginator(post_list, 5)
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
+    return render(request, "profile.html", {'profile': profile, 'posts_count': posts_count,
                                                 'page': page, 'paginator': paginator})
 
 def post_view(request, username, post_id):
-        profile = User.objects.get(username=username)
-        return render(request, "post.html", {'profile': profile})
+    profile = User.objects.get(username=username)
+    posts_count = Post.objects.filter(author=profile).count()
+    # проверка на совпадение id поста с автором поста
+    if Post.objects.get(id=post_id).author == profile:
+        post = Post.objects.get(id=post_id)
+        return render(request, "post.html", {'profile': profile, 'post': post,
+                                'posts_count': posts_count})
+    return redirect('profile', username=profile.username)
 
 def post_edit(request, username, post_id):
-        # тут тело функции. Не забудьте проверить, 
+    # тут тело функции. Не забудьте проверить, 
         # что текущий пользователь — это автор записи.
         # В качестве шаблона используйте шаблон для создания новой записи,
         # который вы использовали раньше (вы могли назвать шаблон иначе)
-        return render(request, "post_new.html", {}) 
+        return render(request, "new_post.html", {}) 
 

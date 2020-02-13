@@ -5,7 +5,7 @@
 <form method="POST" action="{% url 'new_post' %}">
     {% csrf_token %}
     {{ form.as_p }}
-    <input type="submit" value="Ок">
+    <input type="submit" value="Добавить">
 </form>
 
 {% endblock %}
