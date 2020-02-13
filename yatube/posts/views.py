@@ -37,6 +37,18 @@ def new_post(request):
     return render(request, 'new_post.html', {'form': form})
 
 
-def  view_post(request):
-    pass   
+def profile(request, username):
+        # тут тело функции
+        return render(request, "profile.html", {})
+
+def post_view(request, username, post_id):
+        # тут тело функции
+        return render(request, "post.html", {})
+
+def post_edit(request, username, post_id):
+        # тут тело функции. Не забудьте проверить, 
+        # что текущий пользователь — это автор записи.
+        # В качестве шаблона используйте шаблон для создания новой записи,
+        # который вы использовали раньше (вы могли назвать шаблон иначе)
+        return render(request, "post_new.html", {}) 
 

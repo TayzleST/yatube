@@ -16,15 +16,35 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import include, path
+from django.contrib.flatpages import views
+# from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = [
-    # обработчик для главной страницы ищем в urls.py приложения posts
-    path("", include("posts.urls")),
     # импорт правил из приложения admin
     path("admin/", admin.site.urls),
+    # flatpages
+    path("about/", include("django.contrib.flatpages.urls")),
     # регистрация и авторизация
     path("auth/", include("users.urls")),
     # если нужного шаблона для /auth не нашлось в файле users.urls — 
     # ищем совпадения в файле django.contrib.auth.urls
     path("auth/", include("django.contrib.auth.urls")),
 ]
+
+urlpatterns += [
+    path('about-us/', views.flatpage, {'url': '/about-us/'}, name='about'),
+    path('terms/', views.flatpage, {'url': '/terms/'}, name='terms'),
+]
+
+urlpatterns += [
+    path('about-author/', views.flatpage, {'url': '/about-author/'}, name='author'),
+    path('about-spec/', views.flatpage, {'url': '/about-spec/'}, name='spec'),
+]
+
+
+urlpatterns += [
+    # обработчик для главной страницы ищем в urls.py приложения posts
+    path("", include("posts.urls")),
+]
+
+# urlpatterns += staticfiles_urlpatterns()
