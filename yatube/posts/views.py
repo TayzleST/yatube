@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 
 from django.core.paginator import Paginator
 
-from .models import Post, Group
+from .models import Post, Group, User
 from .forms import PostForm
 
 
@@ -38,12 +38,18 @@ def new_post(request):
 
 
 def profile(request, username):
-        # тут тело функции
-        return render(request, "profile.html", {})
+        profile = User.objects.get(username=username)
+        posts_count = Post.objects.filter(author=profile).count()
+        post_list = Post.objects.filter(author=profile).order_by("-pub_date").all()
+        paginator = Paginator(post_list, 5)
+        page_number = request.GET.get('page')
+        page = paginator.get_page(page_number)
+        return render(request, "profile.html", {'profile': profile, 'posts_count': posts_count,
+                                                'page': page, 'paginator': paginator})
 
 def post_view(request, username, post_id):
-        # тут тело функции
-        return render(request, "post.html", {})
+        profile = User.objects.get(username=username)
+        return render(request, "post.html", {'profile': profile})
 
 def post_edit(request, username, post_id):
         # тут тело функции. Не забудьте проверить, 
