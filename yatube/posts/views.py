@@ -32,8 +32,8 @@ def new_post(request):
             post.author = request.user
             post.save()
             return redirect('index')
-        return render(request, 'new_post.html', {'form': form})
-    form = PostForm(request.POST)
+    else:
+        form = PostForm(request.POST)
     return render(request, 'new_post.html', {'form': form})
 
 
@@ -45,7 +45,8 @@ def profile(request, username):
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     return render(request, "profile.html", {'profile': profile, 'posts_count': posts_count,
-                                                'page': page, 'paginator': paginator})
+                                            'page': page, 'paginator': paginator})
+
 
 def post_view(request, username, post_id):
     profile = User.objects.get(username=username)
@@ -58,9 +59,20 @@ def post_view(request, username, post_id):
     return redirect('profile', username=profile.username)
 
 def post_edit(request, username, post_id):
-    # тут тело функции. Не забудьте проверить, 
-        # что текущий пользователь — это автор записи.
-        # В качестве шаблона используйте шаблон для создания новой записи,
-        # который вы использовали раньше (вы могли назвать шаблон иначе)
-        return render(request, "new_post.html", {}) 
+    # проверка, что текущий юзер и автор поста совпадают
+    if request.user.username == username:
+        post = get_object_or_404(Post, id=post_id)
+        if request.method == 'POST':
+            form = PostForm(request.POST, instance=post)
+            if form.is_valid():
+                post = form.save(commit=False)
+                post.author = request.user
+                post.save()
+                return redirect('post', username=username, post_id=post_id)
+        else:
+            form = PostForm(instance=post)
+        return render(request, 'new_post.html', {'form': form, 'post_id': post_id, 'username': username} )
+    return redirect('post', username=username, post_id=post_id)
+
+
 
