@@ -5,8 +5,10 @@
 {% endblock %}
 
 {% block content %}
-<form method="POST" {% if post_id%} action="{% url 'post_edit' username post_id%}"
-                    {% else %} action="{% url 'new_post' %}" {% endif%}>
+<!-- работает и без этого -->
+<!-- <form method="POST" {% if post_id%} action="{% url 'post_edit' username post_id%}"
+                    {% else %} action="{% url 'new_post' %}" {% endif%}> -->
+    <form method="POST"> 
     {% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="{% if post_id%}Сохранить{% else %}Добавить{% endif%}">
