@@ -9,6 +9,7 @@ urlpatterns = [
     # Просмотр записи
     path("<username>/<int:post_id>/", views.post_view, name="post"),
     path("<username>/<int:post_id>/edit", views.post_edit, name="post_edit"),
+    path("<username>/<int:post_id>/confirm", views.post_confirm, name="post_confirm"),
     path("<username>/<int:post_id>/delete", views.post_delete, name="post_delete"),
     path('', views.index, name='index'),
 ]

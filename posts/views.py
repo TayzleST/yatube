@@ -75,6 +75,13 @@ def post_edit(request, username, post_id):
     return redirect('post', username=username, post_id=post_id)
 
 
+def post_confirm(request, username, post_id):
+    # проверка, что текущий юзер и автор поста совпадают
+    if request.user.username == username:
+        return render(request, 'confirm.html', {'post_id': post_id, 'username': username} )
+    return redirect('post', username=username, post_id=post_id)
+
+
 def post_delete(request, username, post_id):
     # проверка, что текущий юзер и автор поста совпадают
     if request.user.username == username:

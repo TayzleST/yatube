@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}
+Подтверждение удаления
+{% endblock %}
+
+{% block content %}
+
+<h2>Вы уверены, что хотите удалить запись?</h2>
+<br>
+<br>
+<a href="/{{ username }}/{{ post_id }}/delete" class="btn btn-secondary my-2">Да</a>
+<a href="/{{ username }}" class="btn btn-primary my-2">Нет</a>
+
+
+{% endblock %}

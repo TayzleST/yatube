@@ -56,7 +56,7 @@
                                                     {% if profile.username  == request.user.username %}
                                                     <a class="btn btn-sm text-muted" href="/{{ profile.username }}/{{ post.id }}/edit" role="button">Редактировать</a>
                                                     <!-- Ссылка на удаление, показывается только автору записи -->
-                                                    <a class="btn btn-sm text-muted" href="/{{ profile.username }}/{{ post.id }}/delete" role="button">Удалить</a>
+                                                    <a class="btn btn-sm text-muted" href="/{{ profile.username }}/{{ post.id }}/confirm" role="button">Удалить</a>
                                                     {% endif%}
                                             </div>
                                             <!-- Дата публикации  -->
