@@ -75,4 +75,13 @@ def post_edit(request, username, post_id):
     return redirect('post', username=username, post_id=post_id)
 
 
+def post_delete(request, username, post_id):
+    # проверка, что текущий юзер и автор поста совпадают
+    if request.user.username == username:
+        post = get_object_or_404(Post, id=post_id)
+        post.delete()
+        return redirect('profile', username=username)
+    return redirect('post', username=username, post_id=post_id)
+
+
 
