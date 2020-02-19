@@ -8,6 +8,7 @@ from .forms import PostForm
 
 
 def index(request):
+    # главная страница
     post_list = Post.objects.order_by("-pub_date").all()
     paginator = Paginator(post_list, 10) # показывать по 10 записей на странице.
     page_number = request.GET.get('page') # переменная в URL с номером запрошенной страницы
@@ -16,6 +17,7 @@ def index(request):
 
 
 def group_posts(request, slug):
+    # все посты выбранной группы
     group = get_object_or_404(Group, slug=slug)
     post_list = Post.objects.filter(group=group).order_by("-pub_date").all()
     paginator = Paginator(post_list, 10) # показывать по 10 записей на странице.
@@ -25,6 +27,7 @@ def group_posts(request, slug):
 
 
 def new_post(request):
+    # Создание нового поста
     if request.method == 'POST':
         form = PostForm(request.POST)
         if form.is_valid():
@@ -38,6 +41,8 @@ def new_post(request):
 
 
 def profile(request, username):
+    # Страница профиля зарегистрированного пользователя.
+    # Содержит данные о пользователе и его посты.
     profile = User.objects.get(username=username)
     posts_count = Post.objects.filter(author=profile).count()
     post_list = Post.objects.filter(author=profile).order_by("-pub_date").all()
@@ -49,6 +54,7 @@ def profile(request, username):
 
 
 def post_view(request, username, post_id):
+    # Страница просмотра выбранного поста.
     profile = User.objects.get(username=username)
     posts_count = Post.objects.filter(author=profile).count()
     # проверка на совпадение id поста с автором поста
@@ -59,6 +65,7 @@ def post_view(request, username, post_id):
     return redirect('profile', username=profile.username)
 
 def post_edit(request, username, post_id):
+    # Редактирование поста
     # проверка, что текущий юзер и автор поста совпадают
     if request.user.username == username:
         post = get_object_or_404(Post, id=post_id)
@@ -76,6 +83,7 @@ def post_edit(request, username, post_id):
 
 
 def post_confirm(request, username, post_id):
+    # Запрос подтверждения на удаление поста.
     # проверка, что текущий юзер и автор поста совпадают
     if request.user.username == username:
         return render(request, 'confirm.html', {'post_id': post_id, 'username': username} )
@@ -83,6 +91,7 @@ def post_confirm(request, username, post_id):
 
 
 def post_delete(request, username, post_id):
+    # Удаление поста.
     # проверка, что текущий юзер и автор поста совпадают
     if request.user.username == username:
         post = get_object_or_404(Post, id=post_id)

@@ -2,6 +2,9 @@ from django.contrib import admin
 from .models import Post, Group
 
 class PostAdmin(admin.ModelAdmin):
+    '''
+    Информация о созданных постах
+    '''
     # перечисляем поля, которые должны отображаться в админке
     list_display = ("pk", "text", "pub_date", "author", "group") 
     # добавляем интерфейс для поиска по тексту постов
@@ -14,6 +17,9 @@ admin.site.register(Post, PostAdmin)
 
 
 class GroupAdmin(admin.ModelAdmin):
+    '''
+    Информация о созданных группах
+    '''
     list_display = ("pk", "title", "slug", "description",)
 
 admin.site.register(Group, GroupAdmin)

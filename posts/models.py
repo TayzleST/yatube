@@ -6,6 +6,9 @@ User = get_user_model()
 
 
 class Group(models.Model):
+    '''
+    Модель групп пользователей
+    '''
     title = models.CharField(max_length=200, unique=True)
     slug = models.SlugField(unique=True)
     description = models.TextField()
@@ -15,6 +18,9 @@ class Group(models.Model):
 
 
 class Post(models.Model):
+    '''
+    Модель постов пользователей
+    '''
     text = models.TextField(verbose_name='текст')
     pub_date = models.DateTimeField("date published", auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="post_author")
