@@ -46,7 +46,7 @@ def new_post(request):
 def profile(request, username):
     # Страница профиля зарегистрированного пользователя.
     # Содержит данные о пользователе и его посты.
-    profile = User.objects.get(username=username)
+    profile = get_object_or_404(User, username=username)
     posts_count = Post.objects.filter(author=profile).count()
     post_list = Post.objects.filter(author=profile).order_by("-pub_date").all()
     paginator = Paginator(post_list, 5)
