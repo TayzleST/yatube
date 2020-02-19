@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
 
 from django.core.paginator import Paginator
 
@@ -26,21 +27,19 @@ def group_posts(request, slug):
     return render(request, "group.html", {"group": group, 'page': page, 'paginator': paginator})
 
 
+@login_required
 def new_post(request):
-    # проверка авторизации пользователя
-    if request.user.is_authenticated:
-        # Создание нового поста
-        if request.method == 'POST':
-            form = PostForm(request.POST)
-            if form.is_valid():
-                post = form.save(commit=False)
-                post.author = request.user
-                post.save()
-                return redirect('index')
-        else:
-            form = PostForm(request.POST)
-        return render(request, 'new_post.html', {'form': form})
-    return redirect('index')
+    # Создание нового поста
+    if request.method == 'POST':
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            return redirect('index')
+    else:
+        form = PostForm(request.POST)
+    return render(request, 'new_post.html', {'form': form})
 
 
 def profile(request, username):
@@ -101,6 +100,3 @@ def post_delete(request, username, post_id):
         post.delete()
         return redirect('profile', username=username)
     return redirect('post', username=username, post_id=post_id)
-
-
-
