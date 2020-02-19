@@ -35,12 +35,23 @@ class PostViewTest(TestCase):
         self.post = Post.objects.create(text="It's driving me crazy!", author=self.user)
         
 
-#После регистрации пользователя создается его персональная страница (profile)
-    # для всех нужен сетап с клиентом и криэйтом пользователя и создание поста
-    # это проверка ViewTest
+    #Проверка, что после регистрации пользователя создается его персональная страница (profile)
+    def test_profile_after_signup(self):
+        # для зарегистрированного пользователя ответ 200 для его персональной странцы
+        response = self.client.get('/sarah/')
+        self.assertEqual(response.status_code, 200)
+        # персональная страница содержит имя зарегистрированного пользователя
+        self.assertContains(response, text='sarah', 
+                            msg_prefix='не отображается имя пользователя на странице профиля')
+        # в контекст передан правильный пользователь
+        self.assertIsInstance(response.context['profile'], User)
+        self.assertEqual(response.context['profile'].username, 'sarah')
+        # если пользователь не зарегистрирован, его страницы не сущестует (ответ 404)
+        response = self.client.get('/unknown/')
+        self.assertEqual(response.status_code, 404)
+        
 
-    # ответ на не зарегистрированного пользователя 404
-    # ответ на зарегистрированного пользователя 200
+        
  #Авторизованный пользователь может опубликовать пост (new)
      # проверить авторизацию
      # если авторизация успешна то ответ сраницы new/ 200
