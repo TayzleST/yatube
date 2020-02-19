@@ -80,7 +80,7 @@ def post_edit(request, username, post_id):
                 return redirect('post', username=username, post_id=post_id)
         else:
             form = PostForm(instance=post)
-        return render(request, 'new_post.html', {'form': form, 'post_id': post_id, 'username': username} )
+        return render(request, 'new_post.html', {'form': form, 'post': post} )
     return redirect('post', username=username, post_id=post_id)
 
 

@@ -24,8 +24,7 @@ class EmailTest(TestCase):
                         'last_name first_name, благодарим за регистрацию на нашем сайте!')
         self.assertEqual(mail.outbox[0].from_email, 'yatube@mail.ru')
         self.assertEqual(mail.outbox[0].to, [email])
-        print(mail.outbox)
-
+    
 
 class PostViewTest(TestCase):
     '''
@@ -68,7 +67,7 @@ class PostViewTest(TestCase):
         # sarah НЕ залогинена, должен быть код 302 и редирект в '/'
         response = self.client.get('/new/')
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/',)
+        self.assertRedirects(response, '/auth/login/?next=/new/',)
 
 
     # Проверка, что после публикации поста новая запись появляется на 
