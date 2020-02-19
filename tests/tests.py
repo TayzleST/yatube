@@ -1,7 +1,5 @@
 from django.test import TestCase, Client, RequestFactory
 from django.core import mail
-import datetime as dt
-from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 
 
@@ -28,15 +26,6 @@ class EmailTest(TestCase):
         self.assertEqual(mail.outbox[0].to, [email])
         print(mail.outbox)
 
-    def test_send_email_2(self):
-        request = RequestFactory().post('/auth/signup/',
-            {'username': 'terminator', 'email': 'terminator@mail.ru', 'password': 'skynetMyLove'},
-            follow=True)
-        response = SignUp.as_view()(request)
-#        print(dir(response))
-        print(mail.outbox)
-
-    
 
 class PostViewTest(TestCase):
     '''
@@ -115,77 +104,3 @@ class PostViewTest(TestCase):
         # проверяем изменение поста на отдельной странице поста (post)
         response = self.client.get(reverse('post', args=['sarah', 1]))
         self.assertEqual(str(response.context['post']), "I'll be back!")
-        
-
-
-
-     
- #Авторизованный пользователь может отредактировать свой пост и его содержимое изменится на всех связанных страницах
-     # для авторизованного пользователя доступна страница редактирована (нужно текущего пользователя выцепить)
-     # для неаторизованного редиректит(ответ 302)
-     # создать новый пост со страрым id и проверить 
-
-
-
-
-
-
-
-
-#    def test_registration(self):
-#        # проверка, что пользователь зарегистрировался
-#        self.new_user = get_object_or_404(User, username='sarah')
-#        print('hello')
-#        self.assertEqual(self.new_user.email, 'connor.s@skynet.com')
-#        response = self.client.post('/auth/login/', username="sarah", password="12345",)
-#        print(response)
-#        self.assertRedirects(response,"http://google.com",fetch_redirect_response=False )
-
-        
-
-
-    
-
-#        request = self.factory.post('/auth/signup/', {'name': 'terminator', 'passwd': 'skynetMyLove', 'email': "connor.s@skynet.com"})
-#        print(request.POST)
-#        response = SignUp.as_view()(request)
-#        print(response.status)
-#        response = self.client.post('/auth/signup/', {'name': 'terminator', 'passwd': 'skynetMyLove', 'email': "connor.s@skynet.com"})
-#        response = SignUp.as_view()(request)
-#        print(response.client)
-        # Проверяем, что письмо лежит в исходящих
-#        self.assertEqual(len(mail.outbox), 1)
-        # Проверяем, что тема первого письма правильная.
-#        self.assertEqual(mail.outbox[0].subject, 'Регистрация пользователя')
-#        print(mail.outbox)
-#        print(mail.outbox[0].to)
-
-
-#class PlansPageTest(TestCase):
-#    # название класса скопировал из тренажера
-#    def setUp(self):
-#        self.client = Client()
-# #       self.user = User.objects.create_user(username="sarah",\
-#                    email="connor.s@skynet.com", password="12345")
-#        self.post = Post.objects.create(text='hello,vsem', author=self.user)
-        
-        
-#    def testPageCodes(self):
-#        response = self.client.post('')
-#        self.assertEqual(response.status_code, 200)
-
-#        response = self.client.post('/admin/')
-# #       self.assertEqual(response.status_code, 302)
-
-#    def testIndexContext(self):
-#        response = self.client.get('')
-#        self.assertContains(response, text='hello,vsem', msg_prefix='You have NO posts')
-
-#    def testIndexTemplate(self):
-#        response = self.client.get('')
-#        self.assertTemplateUsed(response, template_name='index.html')
-
-#    def testContextProcessor(self):
-#        today = dt.datetime.today().year
-#        response = self.client.get('')
-#        self.assertEqual(response.context['year'], today)
