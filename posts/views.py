@@ -27,17 +27,20 @@ def group_posts(request, slug):
 
 
 def new_post(request):
-    # Создание нового поста
-    if request.method == 'POST':
-        form = PostForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.author = request.user
-            post.save()
-            return redirect('index')
-    else:
-        form = PostForm(request.POST)
-    return render(request, 'new_post.html', {'form': form})
+    # проверка авторизации пользователя
+    if request.user.is_authenticated:
+        # Создание нового поста
+        if request.method == 'POST':
+            form = PostForm(request.POST)
+            if form.is_valid():
+                post = form.save(commit=False)
+                post.author = request.user
+                post.save()
+                return redirect('index')
+        else:
+            form = PostForm(request.POST)
+        return render(request, 'new_post.html', {'form': form})
+    return redirect('index')
 
 
 def profile(request, username):
