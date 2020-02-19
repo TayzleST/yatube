@@ -51,8 +51,22 @@ class PostViewTest(TestCase):
         self.assertEqual(response.status_code, 404)
         
 
-        
- #Авторизованный пользователь может опубликовать пост (new)
+    #Авторизованный пользователь может опубликовать пост (new)
+    def test_logged_in_user_can_create_post(self):
+        # залогинем sarah
+        self.client.login(username='sarah', password='12345')
+        response = self.client.get('/new/')
+        # ответ при переходе на страницу нового поста должен быть 200
+        self.assertEqual(response.status_code, 200)
+
+    #Неавторизованный посетитель не может опубликовать пост (его редиректит на страницу входа)
+    def test_not_logged_in_cant_create_post(self):
+        # sarah НЕ залогинена, должен быть код 302 и редирект в '/'
+        response = self.client.get('/new/')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/',)
+
+
      # проверить авторизацию
      # если авторизация успешна то ответ сраницы new/ 200
  #Неавторизованный посетитель не может опубликовать пост (его редиректит на страницу входа)
