@@ -69,7 +69,7 @@ def post_view(request, username, post_id):
 def post_edit(request, username, post_id):
     # Редактирование поста
     # проверка, что текущий юзер и автор поста совпадают
-    if request.user.username == username:
+    if request.user == get_object_or_404(Post, id=post_id).author:
         post = get_object_or_404(Post, id=post_id)
         if request.method == 'POST':
             form = PostForm(request.POST, instance=post)
@@ -87,7 +87,7 @@ def post_edit(request, username, post_id):
 def post_confirm(request, username, post_id):
     # Запрос подтверждения на удаление поста.
     # проверка, что текущий юзер и автор поста совпадают
-    if request.user.username == username:
+    if request.user == get_object_or_404(Post, id=post_id).author:
         return render(request, 'confirm.html', {'post_id': post_id, 'username': username} )
     return redirect('post', username=username, post_id=post_id)
 
@@ -95,7 +95,7 @@ def post_confirm(request, username, post_id):
 def post_delete(request, username, post_id):
     # Удаление поста.
     # проверка, что текущий юзер и автор поста совпадают
-    if request.user.username == username:
+    if request.user == get_object_or_404(Post, id=post_id).author:
         post = get_object_or_404(Post, id=post_id)
         post.delete()
         return redirect('profile', username=username)
