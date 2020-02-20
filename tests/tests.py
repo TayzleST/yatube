@@ -11,19 +11,30 @@ from posts.views import post_edit
 # Пользователь регистрируется и ему отправляется письмо с подтверждением регистрации
 class EmailTest(TestCase):
     '''
-    Проверка правильности заполнения письма об успешной регистрации
+    Проверка регистрации и правильности заполнения письма об успешной регистрации
     '''
+    
     def test_send_email(self):
-        self.user = User.objects.create_user(username="sarah", 
-                    email="connor.s@skynet.com", password="12345")
-        email = self.user.email
-        SignUp.send_email(self, email, first_name='first_name', last_name='last_name')
+        self.client = Client()
+        # Проверка, что НЕ зарегистрированный пользователь не может залогиниться
+        login = self.client.login(username='terminator', password='skynetMyLove')
+        self.assertFalse(login)
+        # создаем запрос методом POST с данными нового пользователя на страницу регистрации
+        request = RequestFactory().post('/auth/signup/',
+            {'username': 'terminator', 'email': 'terminator@mail.ru', 'password1': 'skynetMyLove',
+             'password2': 'skynetMyLove', 'first_name': 'Sara', 'last_name': 'Conor'},
+            follow=True)
+        SignUp.as_view()(request)
+        # Проверка, что новый пользователь зарегистрировался и может залогиниться
+        login = self.client.login(username='terminator', password='skynetMyLove')
+        self.assertTrue(login)
+        # Проверка отправки почты и корректности введенных данных
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].subject, 'Регистрация пользователя')
         self.assertEqual(mail.outbox[0].body,
-                        'last_name first_name, благодарим за регистрацию на нашем сайте!')
+                        'Conor Sara, благодарим за регистрацию на нашем сайте!')
         self.assertEqual(mail.outbox[0].from_email, 'yatube@mail.ru')
-        self.assertEqual(mail.outbox[0].to, [email])
+        self.assertEqual(mail.outbox[0].to, ['terminator@mail.ru'])
     
 
 class PostViewTest(TestCase):
