@@ -57,20 +57,20 @@ def profile(request, username):
 
 def post_view(request, username, post_id):
     # Страница просмотра выбранного поста.
-    profile = User.objects.get(username=username)
-    posts_count = Post.objects.filter(author=profile).count()
-    # проверка на совпадение id поста с автором поста
-    if Post.objects.get(id=post_id).author == profile:
-        post = Post.objects.get(id=post_id)
+    profile = get_object_or_404(User, username=username)
+    post = get_object_or_404(Post, id=post_id)
+    # проверка на соответствие id поста выбранному автору
+    if post.author == profile:
+        posts_count = Post.objects.filter(author=profile).count()
         return render(request, "post.html", {'profile': profile, 'post': post,
                                 'posts_count': posts_count})
     return redirect('profile', username=profile.username)
 
 def post_edit(request, username, post_id):
     # Редактирование поста
+    post = get_object_or_404(Post, id=post_id)
     # проверка, что текущий юзер и автор поста совпадают
-    if request.user == get_object_or_404(Post, id=post_id).author:
-        post = get_object_or_404(Post, id=post_id)
+    if request.user == post.author:
         if request.method == 'POST':
             form = PostForm(request.POST, instance=post)
             if form.is_valid():
