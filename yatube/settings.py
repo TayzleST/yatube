@@ -148,3 +148,13 @@ EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
 
 # Идентификатор текущего сайта
 SITE_ID = 1
+
+
+# Logging
+if DEBUG:
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "handlers": {"console": {"level": "DEBUG", "class": "logging.StreamHandler"}},
+        "loggers": {"django.db.backends": {"handlers": ["console"], "level": "DEBUG"}},
+    }
