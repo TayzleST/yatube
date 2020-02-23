@@ -10,7 +10,7 @@ from .forms import PostForm
 
 def index(request):
     # главная страница
-    post_list = Post.objects.order_by("-pub_date").all()
+    post_list = Post.objects.select_related('author').order_by("-pub_date").all()
     paginator = Paginator(post_list, 10) # показывать по 10 записей на странице.
     page_number = request.GET.get('page') # переменная в URL с номером запрошенной страницы
     page = paginator.get_page(page_number) # получить записи с нужным смещением
@@ -46,8 +46,8 @@ def profile(request, username):
     # Страница профиля зарегистрированного пользователя.
     # Содержит данные о пользователе и его посты.
     profile = get_object_or_404(User, username=username)
-    posts_count = Post.objects.filter(author=profile).count()
-    post_list = Post.objects.filter(author=profile).order_by("-pub_date").all()
+    post_list = Post.objects.select_related('author').filter(author=profile).order_by("-pub_date").all()
+    posts_count = post_list.count()
     paginator = Paginator(post_list, 5)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
