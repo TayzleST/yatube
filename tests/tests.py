@@ -110,9 +110,15 @@ class PostViewTest(TestCase):
         # залогинем sarah
         self.client.login(username='sarah', password='12345')
         # создаем запрос методом POST к редактируемой странице с измененным текстом 
+        '''
+        Альтернативный рабочий метод через RequestFactory()
         request = RequestFactory().post('/sarah/1/edit/', {'text': "I ll be back!"}, follow=True)
         request.user = self.user
         post_edit(request, username='sarah', post_id=1)
+        Ниже вариант через Client()
+        '''
+        self.client.post(reverse('post_edit', kwargs={'username': 'sarah', 'post_id': 1}),
+                                {'text': "I ll be back!"}, follow=True)
         # проверяем изменение поста на главной странице (index)
         response = self.client.get('/')
         self.assertContains(response, "I ll be back!")
