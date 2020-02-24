@@ -1,6 +1,7 @@
 from django.test import TestCase, Client, RequestFactory
 from django.core import mail
 from django.urls import reverse
+from django.conf import settings
 
 
 from posts.models import Post, User
@@ -114,3 +115,19 @@ class PostViewTest(TestCase):
         # проверяем изменение поста на отдельной странице поста (post)
         response = self.client.get(reverse('post', args=['sarah', 1]))
         self.assertEqual(str(response.context['post']), "I'll be back!")
+
+
+class Error404Test(TestCase):
+    '''
+    Проверка, возвращает ли сервер 404, если страница не найдена
+    '''
+    def test_404_code(self):
+        # проверяем что ответ сервера 404, если страница не найдена
+        self.client = Client()
+        response = self.client.get('/404/')
+        self.assertEqual(response.status_code, 404)
+        # проверка используется ли нужный темплейт, если DEBUG=False
+        if settings.DEBUG == False:
+            self.assertTemplateUsed(response, template_name='misc/404.html',)
+        # проверка, передана ли в контекст переменная path
+            self.assertEqual(response.context['path'], '/404/')
