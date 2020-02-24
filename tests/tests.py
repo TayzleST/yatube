@@ -85,7 +85,11 @@ class PostViewTest(TestCase):
     # Проверка, что после публикации поста новая запись появляется на 
     # главной странице сайта (index), на персональной странице пользователя (profile),
     # и на отдельной странице поста (post)
-    def test_post_displayed_on_all_pages(self):
+    def test_post_displayed_on_all_pages(self):          
+        ''' метод assertContains НЕ может искать выражения с апострофом, поэтому здесь используется
+            assertEqual и искомое выражение вытаскиваем из контекста. Пример работы с assertContains
+            будет показана ниже в тесте test_post_edit
+        '''
         # проверяем отображение поста на главной странице (index)
         response = self.client.get('/')
         self.assertEqual(str(response.context['paginator'].object_list[0]), "It's driving me crazy!")
@@ -100,21 +104,24 @@ class PostViewTest(TestCase):
     # Проверка, что авторизованный пользователь может отредактировать свой пост
     # и его содержимое изменится на всех связанных страницах
     def test_post_edit(self):
+        ''' 
+        В этом тесте используется assertContains для поиска выражения
+        '''
         # залогинем sarah
         self.client.login(username='sarah', password='12345')
         # создаем запрос методом POST к редактируемой странице с измененным текстом 
-        request = RequestFactory().post('/sarah/1/edit/', {'text': "I'll be back!"}, follow=True)
+        request = RequestFactory().post('/sarah/1/edit/', {'text': "I ll be back!"}, follow=True)
         request.user = self.user
         post_edit(request, username='sarah', post_id=1)
         # проверяем изменение поста на главной странице (index)
         response = self.client.get('/')
-        self.assertEqual(str(response.context['paginator'].object_list[0]), "I'll be back!")
+        self.assertContains(response, "I ll be back!")
         # проверяем изменение поста на персональной странице пользователя (profile)
         response = self.client.get('/sarah/')
-        self.assertEqual(str(response.context['paginator'].object_list[0]), "I'll be back!")
+        self.assertContains(response, "I ll be back!")
         # проверяем изменение поста на отдельной странице поста (post)
         response = self.client.get(reverse('post', args=['sarah', 1]))
-        self.assertEqual(str(response.context['post']), "I'll be back!")
+        self.assertContains(response, "I ll be back!")
 
 
 class Error404Test(TestCase):
