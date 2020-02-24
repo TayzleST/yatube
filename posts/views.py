@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import requires_csrf_token
 
 from django.core.paginator import Paginator
 
@@ -100,3 +101,15 @@ def post_delete(request, username, post_id):
         post.delete()
         return redirect('profile', username=username)
     return redirect('post', username=username, post_id=post_id)
+
+
+# @requires_csrf_token
+def page_not_found(request, exception):
+    # Переменная exception содержит отладочную информацию, 
+    # выводить её в шаблон пользователской страницы 404 мы не станем
+    return render(request, "misc/404.html", {"path": request.path}, status=404)
+
+
+# @requires_csrf_token
+def server_error(request):
+    return render(request, "misc/500.html", status=500)
