@@ -20,7 +20,7 @@ def index(request):
 def group_posts(request, slug):
     # все посты выбранной группы
     group = get_object_or_404(Group, slug=slug)
-    post_list = Post.objects.filter(group=group).order_by("-pub_date").all()
+    post_list = Post.objects.select_related('group', 'author').filter(group=group).order_by("-pub_date").all()
     paginator = Paginator(post_list, 10) # показывать по 10 записей на странице.
     page_number = request.GET.get('page') # переменная в URL с номером запрошенной страницы
     page = paginator.get_page(page_number) # получить записи с нужным смещением
