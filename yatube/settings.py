@@ -130,26 +130,24 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 # Static
-
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 # STATICFILES_DIR = os.path.join(BASE_DIR, 'static')
 
-# Login
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
+# Login
 LOGIN_URL = "/auth/login/"
 LOGIN_REDIRECT_URL = "index" 
 # LOGOUT_REDIRECT_URL = "index"
 
 # Email
-
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
 
-
 # Идентификатор текущего сайта
 SITE_ID = 1
-
 
 # Logging
 if DEBUG:

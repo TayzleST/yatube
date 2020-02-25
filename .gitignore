@@ -138,3 +138,7 @@ users/migrations/
  yatube/posts/migrations/
  yatube/posts/static/
  posts/templates/post_old_version.html
+
+ media/
+ media/cache/
+ media/posts/
