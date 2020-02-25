@@ -2,6 +2,7 @@ from django.test import TestCase, Client, RequestFactory
 from django.core import mail
 from django.urls import reverse
 from django.conf import settings
+import datetime as dt
 
 
 from posts.models import Post, User
@@ -144,3 +145,15 @@ class Error404Test(TestCase):
             self.assertTemplateUsed(response, template_name='misc/404.html',)
         # проверка, передана ли в контекст переменная path
             self.assertEqual(response.context['path'], '/404/')
+
+class FooterTest(TestCase):
+    '''
+    Проверка что в подвал сайта выводится правильная дата
+    '''
+    def testContextProcessor(self):
+        # проверяем дату
+        today = dt.datetime.today().year
+        response = self.client.get('')
+        self.assertEqual(response.context['year'], today)
+        # проверяем исползование нужного темплейта
+        self.assertTemplateUsed(response, template_name='footer.html',)
