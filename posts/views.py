@@ -73,7 +73,7 @@ def post_edit(request, username, post_id):
     # проверка, что текущий юзер и автор поста совпадают
     if request.user == post.author:
         if request.method == 'POST':
-            form = PostForm(request.POST, instance=post)
+            form = PostForm(request.POST or None, files=request.FILES or None, instance=post)
             if form.is_valid():
                 post = form.save(commit=False)
                 post.author = request.user
