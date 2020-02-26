@@ -184,17 +184,15 @@ class ImageTest(TestCase):
         # создадим новую запись с текстом и картинкой
         img = 'tests/for_image_testing/favicon.png'
         with open(img, 'rb') as fp:
-            self.client.post('/new/', {'text': "I ll be back!",
-                                       'group_id': 1,
-                                       'image': fp,}, follow=True)
+            self.client.post('/new/', {'text': "I ll be back!", 'image': fp, 'group': 1,}, follow=True)
         # проверяем, что картинка появилась на всех страницах
         response = self.client.get('/') # главная страница
         self.assertContains(response, "I ll be back!") # на всякий случай проверим новый текст
         self.assertContains(response, text='<img')
         response = self.client.get('/sarah/') # страница профайла
         self.assertContains(response, text='<img')  
-#        response = self.client.get('/group/dogs/') # страница группы
-#        self.assertContains(response, text='<img') # что-то не хочет эта проверка работать
+        response = self.client.get('/group/dogs/') # страница группы
+        self.assertContains(response, text='<img') 
         response = self.client.get('/sarah/2/') # страница конкретной записи
         self.assertContains(response, text='<img')
 
