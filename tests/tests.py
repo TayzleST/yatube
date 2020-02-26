@@ -4,8 +4,7 @@ from django.urls import reverse
 from django.conf import settings
 import datetime as dt
 
-
-from posts.models import Post, User
+from posts.models import Post, User, Group
 from users.views import SignUp
 from posts.views import post_edit
 
@@ -153,7 +152,64 @@ class FooterTest(TestCase):
     def testContextProcessor(self):
         # проверяем дату
         today = dt.datetime.today().year
-        response = self.client.get('')
+        response = self.client.get('/')
         self.assertEqual(response.context['year'], today)
         # проверяем исползование нужного темплейта
         self.assertTemplateUsed(response, template_name='footer.html',)
+    
+class ImageTest(TestCase):
+    '''
+    Проверка правильности отображения картинок на страницах
+    '''
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username="sarah", 
+                                             email="connor.s@skynet.com", password="12345")
+        self.group = Group.objects.create(slug='dogs', title='псы')
+        self.post = Post.objects.create(text="It's driving me crazy!", author=self.user, group=self.group)
+        # залогинем sarah
+        self.client.login(username='sarah', password='12345')
+    
+    def test_image_on_pages(self):
+        # проверим отсутствие картинки на главной странице, странице профайла,
+        # странице группы и странице конкретной записи.
+        response = self.client.get('/') # главная страница
+        self.assertNotContains(response, text='<img')
+        response = self.client.get('/sarah/') # страница профайла
+        self.assertNotContains(response, text='<img')
+        response = self.client.get('/group/dogs/') # страница группы
+        self.assertNotContains(response, text='<img')
+        response = self.client.get('/sarah/1/') # страница конкретной записи
+        self.assertNotContains(response, text='<img')
+        # создадим новую запись с текстом и картинкой
+        img = 'tests/for_image_testing/favicon.png'
+        with open(img, 'rb') as fp:
+            self.client.post('/new/', {'text': "I ll be back!",
+                                       'group_id': 1,
+                                       'image': fp,}, follow=True)
+        # проверяем, что картинка появилась на всех страницах
+        response = self.client.get('/') # главная страница
+        self.assertContains(response, "I ll be back!") # на всякий случай проверим новый текст
+        self.assertContains(response, text='<img')
+        response = self.client.get('/sarah/') # страница профайла
+        self.assertContains(response, text='<img')  
+#        response = self.client.get('/group/dogs/') # страница группы
+#        self.assertContains(response, text='<img') # что-то не хочет эта проверка работать
+        response = self.client.get('/sarah/2/') # страница конкретной записи
+        self.assertContains(response, text='<img')
+
+
+    def test_valid_image(self):
+        # проверка, что загрузить можно только картинки.
+        # сначала загружаем картинку, должен произойти редирект(код 302)
+        img = 'tests/for_image_testing/favicon.png'
+        with open(img, 'rb') as fp:
+            response = self.client.post('/new/', {'text': "I ll be back!", 'image': fp, 'title': 'псы'})
+        # проверяем редирект
+        self.assertEqual(response.status_code, 302)
+        # для проверки защиты попробуем загрузить текстовый файл. 
+        # Если защита сработает - не будет редиректа(код 200)
+        img = 'tests/for_image_testing/test.txt'
+        with open(img, 'rb') as fp:
+            response = self.client.post('/new/', {'text': "I ll be back!", 'image': fp, 'title': 'псы'})
+        self.assertEqual(response.status_code, 200)

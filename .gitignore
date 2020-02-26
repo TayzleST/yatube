@@ -142,3 +142,5 @@ users/migrations/
  media/
  media/cache/
  media/posts/
+
+ tests/for_image_testing/
