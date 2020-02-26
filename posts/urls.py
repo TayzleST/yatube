@@ -16,6 +16,8 @@ urlpatterns = [
     path("<username>/<int:post_id>/confirm", views.post_confirm, name="post_confirm"),
     # удаление выбранного поста
     path("<username>/<int:post_id>/delete", views.post_delete, name="post_delete"),
+    # комментарии от читателей
+    path("<username>/<int:post_id>/comment", views.add_comment, name="add_comment"),
     # главная страница со всеми постами всех пользователей
     path('', views.index, name='index'),
 ]
