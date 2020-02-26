@@ -11,7 +11,7 @@ from .forms import PostForm, CommentForm
 
 def index(request):
     # главная страница
-    post_list = Post.objects.select_related('author').order_by("-pub_date").all()
+    post_list = Post.objects.select_related('group', 'author').order_by("-pub_date").all()
     paginator = Paginator(post_list, 10) # показывать по 10 записей на странице.
     page_number = request.GET.get('page') # переменная в URL с номером запрошенной страницы
     page = paginator.get_page(page_number) # получить записи с нужным смещением
@@ -47,7 +47,7 @@ def profile(request, username):
     # Страница профиля зарегистрированного пользователя.
     # Содержит данные о пользователе и его посты.
     profile = get_object_or_404(User, username=username)
-    post_list = Post.objects.select_related('author').filter(author=profile).order_by("-pub_date").all()
+    post_list = Post.objects.select_related('group', 'author').filter(author=profile).order_by("-pub_date").all()
     posts_count = post_list.count()
     paginator = Paginator(post_list, 5)
     page_number = request.GET.get('page')
@@ -63,7 +63,7 @@ def post_view(request, username, post_id):
     # добавляем форму для комментирования
     form = CommentForm(request.POST or None)
     # комментарии к посту
-    items = Comment.objects.select_related('post').filter(post=post)
+    items = Comment.objects.select_related('post', 'author').filter(post=post)
     # проверка на соответствие id поста выбранному автору
     if post.author == profile:
         posts_count = Post.objects.select_related('author').filter(author=profile).count()
@@ -133,5 +133,5 @@ def add_comment(request, username, post_id):
             return redirect('post', username=username, post_id=post_id)
     else:
         form = CommentForm(request.POST or None)
-    items = Comment.objects.filter(post=post)    
+    items = Comment.objects.select_related('post', 'author').filter(post=post)   
     return render(request, 'post.html', {'form': form, 'post': post, 'items': items} )
