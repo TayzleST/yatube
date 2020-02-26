@@ -4,7 +4,7 @@
 {% block content %}
 <main role="main" class="container">
 <div class="row">
-
+    <div class="col-md-9">
         <h1>Записи сообщества: {{ group.title }}
         <br>
         "{{ group.description }}"</h1>
@@ -19,7 +19,7 @@
         {% if page.has_other_pages %}
             {% include "paginator.html" with items=page paginator=paginator%}
         {% endif %}
-
+    </div>
 </div>
 </main>
 {% endblock %}
