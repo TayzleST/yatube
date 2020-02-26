@@ -128,21 +128,18 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# static files
 static/
+
+# migrations
 posts/migrations/
 users/migrations/
+
+# vscode
 .vscode/
 
- yatube/posts/migrations/0002_auto_20200203_2153.py
- 0002_auto_20200203_2153.py
- yatube/posts/migrations/
- yatube/posts/static/
- posts/templates/post_old_version.html
+# media files
+media/
 
- media/
- media/cache/
- media/posts/
- media
-
- tests/for_image_testing/
- tests/for_image_testing
+# local test files
+tests/for_image_testing
