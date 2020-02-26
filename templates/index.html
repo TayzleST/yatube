@@ -13,6 +13,18 @@
     {% endthumbnail %}
 
     <p>{{ post.text|linebreaksbr }}</p>
+    <div class="btn-group ">
+         <h5 class="mt-0">
+             <a
+                 href="{% url 'profile' post.author %}"
+                 name="comment_{{ post.id }}"
+                 >Страница автора {{ post.author|linebreaksbr }}</a>
+             </h5>  
+        
+             <a class="btn btn-sm text-muted" 
+              href="/{{ post.author }}/{{ post.id }}" 
+              role="button">Добавить комментарий</a>
+    </div>
     <hr>
     {% endfor %}
 

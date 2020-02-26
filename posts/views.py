@@ -63,10 +63,10 @@ def post_view(request, username, post_id):
     # добавляем форму для комментирования
     form = CommentForm(request.POST or None)
     # комментарии к посту
-    items = Comment.objects.filter(post=post)
+    items = Comment.objects.select_related('post').filter(post=post)
     # проверка на соответствие id поста выбранному автору
     if post.author == profile:
-        posts_count = Post.objects.filter(author=profile).count()
+        posts_count = Post.objects.select_related('author').filter(author=profile).count()
         return render(request, "post.html", {'profile': profile, 'post': post,
                                 'posts_count': posts_count, 'items': items, 'form': form})
     return redirect('profile', username=profile.username)
@@ -100,8 +100,8 @@ def post_confirm(request, username, post_id):
 def post_delete(request, username, post_id):
     # Удаление поста.
     # проверка, что текущий юзер и автор поста совпадают
-    if request.user == get_object_or_404(Post, id=post_id).author:
-        post = get_object_or_404(Post, id=post_id)
+    post = get_object_or_404(Post, id=post_id)
+    if request.user == post.author:
         post.delete()
         return redirect('profile', username=username)
     return redirect('post', username=username, post_id=post_id)

@@ -31,7 +31,8 @@
                 href="{% url 'profile' item.author %}"
                 name="comment_{{ item.id }}"
                 >{{ item.author }}</a>
-        </h5>
+        </h5>   
+        <h6 class="mt-0">{{ item.pub_date }}</h6>
         {{ item.text }}
 </div>
 </div>
