@@ -157,3 +157,10 @@ if DEBUG:
         "handlers": {"console": {"level": "DEBUG", "class": "logging.StreamHandler"}},
         "loggers": {"django.db.backends": {"handlers": ["console"], "level": "DEBUG"}},
     }
+
+# Cache
+CACHES = {
+        'default': {
+                'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        }
+}

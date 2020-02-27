@@ -3,6 +3,7 @@ from django.core import mail
 from django.urls import reverse
 from django.conf import settings
 import datetime as dt
+from django.core.cache import cache
 
 from posts.models import Post, User, Group
 from users.views import SignUp
@@ -47,7 +48,9 @@ class PostViewTest(TestCase):
         self.user = User.objects.create_user(username="sarah", 
                                              email="connor.s@skynet.com", password="12345")
         self.post = Post.objects.create(text="It's driving me crazy!", author=self.user)
-        
+    
+    def tearDown(self):
+        cache.clear()
 
     #Проверка, что после регистрации пользователя создается его персональная страница (profile)
     def test_profile_after_signup(self):
@@ -170,6 +173,9 @@ class ImageTest(TestCase):
         # залогинем sarah
         self.client.login(username='sarah', password='12345')
     
+    def tearDown(self):
+        cache.clear()
+
     def test_image_on_pages(self):
         # проверим отсутствие картинки на главной странице, странице профайла,
         # странице группы и странице конкретной записи.
@@ -181,6 +187,8 @@ class ImageTest(TestCase):
         self.assertNotContains(response, text='<img')
         response = self.client.get('/sarah/1/') # страница конкретной записи
         self.assertNotContains(response, text='<img')
+        # дополнительная очистка кеша, иначе тесты ниже не увидят измененную страницу сайта
+        cache.clear()
         # создадим новую запись с текстом и картинкой
         img = 'tests/for_image_testing/favicon.png'
         with open(img, 'rb') as fp:
