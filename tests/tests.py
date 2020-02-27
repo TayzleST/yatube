@@ -4,6 +4,8 @@ from django.urls import reverse
 from django.conf import settings
 import datetime as dt
 from django.core.cache import cache
+from django.core.cache.backends import locmem
+from django.core.cache.utils import make_template_fragment_key
 
 from posts.models import Post, User, Group
 from users.views import SignUp
@@ -219,3 +221,31 @@ class ImageTest(TestCase):
         with open(img, 'rb') as fp:
             response = self.client.post('/new/', {'text': "I ll be back!", 'image': fp, 'title': 'псы'})
         self.assertEqual(response.status_code, 200)
+
+
+class CacheTest(TestCase):
+    '''
+    Проверка кеширования страниц
+    '''  
+    def tearDown(self):
+        cache.clear()
+
+    def test_index_cache(self):
+        # проверка, что главная страница кэшируется
+        # проверяем, что в кеше ничего нет
+        self.assertFalse(locmem._caches[''])
+        # загружаем главную страницу и еще раз проверяем наличие кэша
+        response = self.client.get('/') 
+        self.assertTrue(locmem._caches[''])
+        # проверяем, что ключ кэша соответстует установленному в index.html
+        self.assertIn('.index_page.', str(list(locmem._caches[''])),
+                    msg='Проверьте название ключа кэша. Ранее был установлен "index_page"')
+
+
+    def test_index_cache_alternative_method(self):
+        # второй способ, решил написать отдельно.
+        key = make_template_fragment_key('index_page', [1]) # второй аргумент [1], так как в шаблоне 
+                                                            # добавили номер страницы из паджинатора
+        self.assertFalse(cache.get(key))
+        response = self.client.get('/')
+        self.assertTrue(cache.get(key))
