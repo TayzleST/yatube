@@ -27,7 +27,7 @@
                     <div class="btn-group ">
                             <a class="btn btn-sm text-muted" href="{% url 'post' post.author.username post.id %}" role="button">
                                     {% if post.comment_count %}
-                                    {{ post.comment_count }} комментариев
+                                    Комментариев: {{ post.comment_count }} 
                                     {% else%}
                                     Добавить комментарий
                                     {% endif %}

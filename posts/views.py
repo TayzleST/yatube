@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404, get_list_or_40
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.decorators.cache import cache_page
-
+from django.db.models import Count
 from django.core.paginator import Paginator
 
 from .models import Post, Group, User, Comment, Follow
@@ -12,7 +12,9 @@ from .forms import PostForm, CommentForm
 
 def index(request):
     # главная страница
-    post_list = Post.objects.select_related('author', 'group').order_by("-pub_date").all()
+    post_list = Post.objects.select_related('author', 'group').order_by(
+                "-pub_date").all().annotate(
+                comment_count = Count('comment_post'))
     paginator = Paginator(post_list, 10) # показывать по 10 записей на странице.
     page_number = request.GET.get('page') # переменная в URL с номером запрошенной страницы
     page = paginator.get_page(page_number) # получить записи с нужным смещением
@@ -48,7 +50,9 @@ def profile(request, username):
     # Страница профиля зарегистрированного пользователя.
     # Содержит данные о пользователе и его посты.
     profile = get_object_or_404(User, username=username)
-    post_list = Post.objects.select_related('author','group').filter(author=profile).order_by("-pub_date").all()
+    post_list = Post.objects.select_related('author', 'group').filter(
+                author=profile).order_by("-pub_date").all().annotate(
+                comment_count = Count('comment_post'))
     posts_count = post_list.count()
     paginator = Paginator(post_list, 5)
     page_number = request.GET.get('page')
@@ -68,6 +72,7 @@ def post_view(request, username, post_id):
     # проверка на соответствие id поста выбранному автору
     if post.author == profile:
         post.count = Post.objects.select_related('author','group').filter(author=profile).count()
+        post.comment_count = items.count()
         return render(request, "post.html", {'profile': profile, 'post': post,
                                              'items': items, 'form': form})
     return redirect('profile', username=profile.username)
