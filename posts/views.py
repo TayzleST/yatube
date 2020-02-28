@@ -1,18 +1,18 @@
 from django.http import HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404, get_list_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.decorators.cache import cache_page
 
 from django.core.paginator import Paginator
 
-from .models import Post, Group, User, Comment
+from .models import Post, Group, User, Comment, Follow
 from .forms import PostForm, CommentForm
 
 
 def index(request):
     # главная страница
-    post_list = Post.objects.select_related('group', 'author').order_by("-pub_date").all()
+    post_list = Post.objects.select_related('author', 'group').order_by("-pub_date").all()
     paginator = Paginator(post_list, 10) # показывать по 10 записей на странице.
     page_number = request.GET.get('page') # переменная в URL с номером запрошенной страницы
     page = paginator.get_page(page_number) # получить записи с нужным смещением
@@ -48,7 +48,7 @@ def profile(request, username):
     # Страница профиля зарегистрированного пользователя.
     # Содержит данные о пользователе и его посты.
     profile = get_object_or_404(User, username=username)
-    post_list = Post.objects.select_related('group', 'author').filter(author=profile).order_by("-pub_date").all()
+    post_list = Post.objects.select_related('author','group').filter(author=profile).order_by("-pub_date").all()
     posts_count = post_list.count()
     paginator = Paginator(post_list, 5)
     page_number = request.GET.get('page')
@@ -67,7 +67,7 @@ def post_view(request, username, post_id):
     items = Comment.objects.select_related('post', 'author').filter(post=post)
     # проверка на соответствие id поста выбранному автору
     if post.author == profile:
-        post.comment_count = Post.objects.select_related('author').filter(author=profile).count()
+        post.count = Post.objects.select_related('author','group').filter(author=profile).count()
         return render(request, "post.html", {'profile': profile, 'post': post,
                                              'items': items, 'form': form})
     return redirect('profile', username=profile.username)
@@ -136,3 +136,28 @@ def add_comment(request, username, post_id):
         form = CommentForm(request.POST or None)
     items = Comment.objects.select_related('post', 'author').filter(post=post)   
     return render(request, 'post.html', {'form': form, 'post': post, 'items': items} )
+
+
+@login_required
+def follow_index(request):
+    follow = get_list_or_404(Follow, user=request.user)
+    author_list = [item.author for item in follow]
+    post_list = Post.objects.select_related('author','group').filter(author__in=author_list).order_by("-pub_date").all()
+    paginator = Paginator(post_list, 10) # показывать по 10 записей на странице.
+    page_number = request.GET.get('page') # переменная в URL с номером запрошенной страницы
+    page = paginator.get_page(page_number) # получить записи с нужным смещением
+    return render(request, 'follow.html', {'page': page, 'paginator': paginator})
+
+
+@login_required
+def profile_follow(request, username):
+    author = User.objects.get(username=username)
+    user = User.objects.get(username=request.user.username)
+    Follow.objects.create(author=author, user=user)
+    return redirect('profile', username=username)
+
+
+@login_required
+def profile_unfollow(request, username):
+        # ...
+        pass

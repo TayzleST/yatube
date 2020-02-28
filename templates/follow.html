@@ -1,10 +1,10 @@
 {% extends "base.html" %} 
 {% load cache %}
 
-{% block title %} Последние обновления {% endblock %}
+{% block title %}Записи по подписке{% endblock %}
 
 {% block content %}
-    {% cache 20 index_page page.number%}
+    {% cache 20 follow_page page.number%}
     
     <main role="main" class="container">
         {% include "menu.html" with index=True %}
@@ -12,7 +12,7 @@
         <div class="row">
             <div class="col-md-9">
         
-                <h1> Последние обновления на сайте</h1>
+                <h1>Записи по подписке</h1>
         
                 <!-- Вывод ленты записей -->
                 {% for post in page %}
