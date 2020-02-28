@@ -18,7 +18,12 @@ def index(request):
     paginator = Paginator(post_list, 10) # показывать по 10 записей на странице.
     page_number = request.GET.get('page') # переменная в URL с номером запрошенной страницы
     page = paginator.get_page(page_number) # получить записи с нужным смещением
-    return render(request, 'index.html', {'page': page, 'paginator': paginator})
+    # узнаем, подписан ли на кого-то человек, просматривающий страницу
+    if request.user.is_authenticated:
+        return render(request, 'index.html', {'page': page,
+                                          'paginator': paginator, 'following': True})
+    return render(request, 'index.html', {'page': page,
+                                          'paginator': paginator, 'following': False})
 
 
 def group_posts(request, slug):
