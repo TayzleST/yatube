@@ -23,8 +23,8 @@
                             <ul class="list-group list-group-flush">
                                     <li class="list-group-item">
                                             <div class="h6 text-muted">
-                                            Подписчиков: XXX <br />
-                                            Подписан: XXX
+                                            Подписчиков: {{ following_count }} <br />
+                                            Подписан: {{ follower_count }}
                                             </div>
                                     </li>
                                     <li class="list-group-item">
@@ -33,6 +33,9 @@
                                                 Записей: {{ posts_count }}
                                             </div>
                                     </li>
+                        <!--если текущий пользователь совпадает с профайлом,
+                        убираем кнопку Подписаться/Отписаться-->
+                                {% if profile != request.user%}
                                     <li class="list-group-item">
                                         {% if following %}
                                         <a class="btn btn-lg btn-light" 
@@ -46,6 +49,8 @@
                                         </a>
                                         {% endif %}
                                     </li>
+                                {% endif %}
+
                                 </ul>
                     </div>
             </div>

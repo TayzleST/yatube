@@ -23,7 +23,7 @@ def index(request):
         follow = Follow.objects.filter(user=request.user).count()
         if follow: # если подписан - переходит на страницу с подписанными авторами
             return render(request, 'index.html', {'page': page,
-                                          'paginator': paginator, 'follow': follow})
+                                          'paginator': paginator, 'follow': True})
     # если не авторизован или не подписан, ссылка с переходом не отобразится
     return render(request, 'index.html', {'page': page,
                                           'paginator': paginator, 'follow': False})
@@ -65,8 +65,19 @@ def profile(request, username):
     paginator = Paginator(post_list, 5)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
+    # проверка, подписан ли текущий пользователь на просматриваемого автора
+    follow = Follow.objects.filter(author=profile)
+    following_count = Follow.objects.filter(author=profile).count() # подписчики
+    follower_count = Follow.objects.filter(user=profile).count() # подписан
+    following = False # флаг, чтобы подписаться на автора
+    if following_count:
+        for item in follow:
+            if request.user == item.user:
+                following = True # флаг, чтобы отписаться от автора
+                break
     return render(request, "profile.html", {'profile': profile, 'posts_count': posts_count,
-                                            'page': page, 'paginator': paginator})
+                             'page': page, 'paginator': paginator, 'following': following,
+                             'following_count': following_count, 'follower_count': follower_count})
 
 
 def post_view(request, username, post_id):
@@ -77,12 +88,16 @@ def post_view(request, username, post_id):
     form = CommentForm(request.POST or None)
     # комментарии к посту
     items = Comment.objects.select_related('post', 'author').filter(post=post)
+    # счетчики подписки на авторов
+    following_count = Follow.objects.filter(author=profile).count() # подписчики
+    follower_count = Follow.objects.filter(user=profile).count() # подписан
     # проверка на соответствие id поста выбранному автору
     if post.author == profile:
         post.count = Post.objects.select_related('author','group').filter(author=profile).count()
         post.comment_count = items.count()
         return render(request, "post.html", {'profile': profile, 'post': post,
-                                             'items': items, 'form': form})
+                                             'items': items, 'form': form,
+                                             'following_count': following_count, 'follower_count': follower_count})
     return redirect('profile', username=profile.username)
 
 def post_edit(request, username, post_id):
@@ -169,13 +184,24 @@ def follow_index(request):
 
 @login_required
 def profile_follow(request, username):
-    author = User.objects.get(username=username)
-    user = User.objects.get(username=request.user.username)
-    Follow.objects.create(author=author, user=user)
+    # проверка, что автор сам на себя не подпишется (сделал дополнительно, так как 
+    # если автор совпадает с текущим пользователем, то кнопка подписки
+    # не отображается на странице. Стоит условие в шаблоне)
+    if request.user.username != username:
+        author = User.objects.get(username=username)
+        user = User.objects.get(username=request.user.username)
+        Follow.objects.create(author=author, user=user)
     return redirect('profile', username=username)
 
 
 @login_required
 def profile_unfollow(request, username):
-        # ...
-        pass
+    # отписываемся от автора 
+    author = get_object_or_404(User, username=username)
+    unfollow = get_list_or_404(Follow, author=author)
+    for item in unfollow:
+        if item.user == request.user:
+            item.delete()
+            break
+    return redirect('profile', username=username)
+       
