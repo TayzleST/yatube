@@ -7,7 +7,7 @@ from django.core.cache import cache
 from django.core.cache.backends import locmem
 from django.core.cache.utils import make_template_fragment_key
 
-from posts.models import Post, User, Group
+from posts.models import Post, User, Group, Follow
 from users.views import SignUp
 from posts.views import post_edit
 
@@ -249,3 +249,40 @@ class CacheTest(TestCase):
         self.assertFalse(cache.get(key))
         response = self.client.get('/')
         self.assertTrue(cache.get(key))
+
+
+class FollowTest(TestCase):
+    '''
+    Проверка возможности подписываться на других авторов
+    '''  
+    def setUp(self):
+        self.client = Client()
+        self.user1 = User.objects.create_user(
+                    username="testuser1", email="test1@mail.ru", password="12345")
+        self.user2 = User.objects.create_user(
+                    username="testuser2", email="test2@mail.ru", password="23456")
+        self.user3 = User.objects.create_user(
+                    username="testuser3", email="test3@mail.ru", password="34567")
+        self.post = Post.objects.create(text="Hellow, world!", author=self.user1)
+
+    def tearDown(self):
+        cache.clear()
+
+    # проверка, что aвторизованный пользователь может подписываться 
+    # на других пользователей и удалять их из подписок.
+    def test_following_to_other_author(self):
+        # залогинем testuser1
+        login = self.client.login(username='testuser1', password='12345')
+        # проверяем, что в базе с подписками Follow нет записей
+        self.assertEqual(Follow.objects.count(), 0)
+        response = self.client.get('/testuser2/follow', follow=True)
+        self.assertRedirects(response, '/testuser2/')
+        # проверяем, что в базе с подписками Follow появилась одна запись
+        self.assertEqual(Follow.objects.count(), 1)
+        # проверяем, что user1 подписался на user2
+        self.assertEqual(Follow.objects.get(id=1).user, self.user1)
+        self.assertEqual(Follow.objects.get(id=1).author, self.user2)
+        # user1 удаляет подписку на user2
+        response = self.client.get('/testuser2/unfollow', follow=True)
+        # проверяем, что в базе Follow не осталось записи
+        self.assertEqual(Follow.objects.count(), 0)
