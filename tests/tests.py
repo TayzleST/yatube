@@ -263,7 +263,8 @@ class FollowTest(TestCase):
                     username="testuser2", email="test2@mail.ru", password="23456")
         self.user3 = User.objects.create_user(
                     username="testuser3", email="test3@mail.ru", password="34567")
-        self.post = Post.objects.create(text="Hellow, world!", author=self.user1)
+        self.post = Post.objects.create(text="It s driving me crazy!", author=self.user1)
+        self.post = Post.objects.create(text="I ll be back", author=self.user2)
 
     def tearDown(self):
         cache.clear()
@@ -272,17 +273,54 @@ class FollowTest(TestCase):
     # на других пользователей и удалять их из подписок.
     def test_following_to_other_author(self):
         # залогинем testuser1
-        login = self.client.login(username='testuser1', password='12345')
+        self.client.login(username='testuser1', password='12345')
         # проверяем, что в базе с подписками Follow нет записей
         self.assertEqual(Follow.objects.count(), 0)
+        # подписываем testuser1 на testuser2
         response = self.client.get('/testuser2/follow', follow=True)
         self.assertRedirects(response, '/testuser2/')
         # проверяем, что в базе с подписками Follow появилась одна запись
         self.assertEqual(Follow.objects.count(), 1)
-        # проверяем, что user1 подписался на user2
+        # проверяем, что testuser1 подписался на testuser2, а не наоборот
         self.assertEqual(Follow.objects.get(id=1).user, self.user1)
         self.assertEqual(Follow.objects.get(id=1).author, self.user2)
-        # user1 удаляет подписку на user2
+        # testuser1 удаляет подписку на testuser2
         response = self.client.get('/testuser2/unfollow', follow=True)
         # проверяем, что в базе Follow не осталось записи
         self.assertEqual(Follow.objects.count(), 0)
+
+
+    # проверка, что новая запись пользователя появляется в ленте тех,
+    # кто на него подписан и не появляется в ленте тех, кто не подписан на него.    
+    def test_post_for_following_user_only(self):
+        # testuser 1 создает новую запись
+        self.client.login(username='testuser1', password='12345')
+        self.client.post('/new/', {'text': "Hello, world!"}, follow=True)
+        # залогинем testuser2 и проверим, отобразилась ли запись 
+        # пользователя testuser1 без подписки
+        self.client.login(username='testuser2', password='23456')
+        response = self.client.get('/follow/', )
+        self.assertRedirects(response, '/') # произошел редирект на главную
+        # подпишем testuser2 на testuser1 и повторим запрос
+        follow2to1 = self.client.get('/testuser2/follow', )
+        login2 = self.client.login(username='testuser2', password='23456')
+        response = self.client.get('/follow/', follow=True)
+        self.assertEqual(response.status_code, 200) # редиректа нет, код 200
+        # проверим отображение старого и нового поста testuser1 на ленте testuser2
+        self.assertContains(response, text="It s driving me crazy!")
+        self.assertContains(response, text="Hello, world!")
+        
+        # подпишем testuser3 на testuser2 и проверим, что у него
+        # в ленте не отображается пост testuser1, а только пост testuser2
+        self.client.login(username='testuser3', password='34567')
+        response = self.client.get('/follow/', )
+        self.assertRedirects(response, '/') # произошел редирект на главную
+        # подпишем testuser3 на testuser2 и повторим запрос
+        self.client.get('/testuser2/follow', )
+        response = self.client.get('/follow/', follow=True)
+        self.assertEqual(response.status_code, 200) # редиректа нет, код 200
+        # testuser3 НЕ должен видеть пост testuser1
+        self.assertNotContains(response, text="Hello, world!")
+        # testuser3 должен видеть пост testuser2
+        self.assertContains(response, text="I ll be back")
+        
