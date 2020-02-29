@@ -302,8 +302,8 @@ class FollowTest(TestCase):
         response = self.client.get('/follow/', )
         self.assertRedirects(response, '/') # произошел редирект на главную
         # подпишем testuser2 на testuser1 и повторим запрос
-        follow2to1 = self.client.get('/testuser2/follow', )
-        login2 = self.client.login(username='testuser2', password='23456')
+        self.client.get('/testuser2/follow', )
+        self.client.login(username='testuser2', password='23456')
         response = self.client.get('/follow/', follow=True)
         self.assertEqual(response.status_code, 200) # редиректа нет, код 200
         # проверим отображение старого и нового поста testuser1 на ленте testuser2
@@ -323,4 +323,37 @@ class FollowTest(TestCase):
         self.assertNotContains(response, text="Hello, world!")
         # testuser3 должен видеть пост testuser2
         self.assertContains(response, text="I ll be back")
-        
+
+
+class CommentTest(TestCase):
+    '''
+    Проверка возможности комментировать посты других авторов
+    '''          
+    def setUp(self):
+        self.client = Client()
+        self.user1 = User.objects.create_user(
+                    username="testuser1", email="test1@mail.ru", password="12345")
+        self.user2 = User.objects.create_user(
+                    username="testuser2", email="test2@mail.ru", password="23456")
+        self.post = Post.objects.create(text="It s driving me crazy!", author=self.user1)
+
+    def tearDown(self):
+        cache.clear()
+
+    # проверка, что только авторизированный пользователь может комментировать посты    
+    def test_logged_in_user_comments_only(self):
+        # пробуем без логина создать комментарий для поста testuser1
+        response = self.client.post(reverse('add_comment', kwargs={'username': 'testuser1', 'post_id': 1}),
+                                   {'text': "Hi, Sarah!"}, follow=True)
+        # у незалогиненного пользователя должен произойти редирект на страницу логина
+        self.assertRedirects(response, '/auth/login/?next=/testuser1/1/comment',)
+        # залогинем testuser2 и повторим создание комментария
+        self.client.login(username='testuser2', password='23456')
+        response = self.client.post(reverse('add_comment', kwargs={'username': 'testuser1', 'post_id': 1}),
+                                   {'text': "Hi, Sarah!"}, follow=True)
+        # должен вернуться код 200
+        self.assertEqual(response.status_code, 200,)
+        # проверяем наличие поста и комментария к нему на странице поста
+        response = self.client.get('/testuser1/1/')
+        self.assertContains(response, text="It s driving me crazy!") # пост
+        self.assertContains(response, text="Hi, Sarah!") # комментарий к нему
