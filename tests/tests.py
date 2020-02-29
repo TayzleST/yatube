@@ -244,8 +244,8 @@ class CacheTest(TestCase):
 
     def test_index_cache_alternative_method(self):
         # второй способ, решил написать отдельно.
-        key = make_template_fragment_key('index_page', [1]) # второй аргумент [1], так как в шаблоне 
-                                                            # добавили номер страницы из паджинатора
+        key = make_template_fragment_key('index_page', [1, False]) # аргументы [1, False], так как в шаблоне 
+                                                      # добавили номер страницы из паджинатора и флаг follow
         self.assertFalse(cache.get(key))
         response = self.client.get('/')
         self.assertTrue(cache.get(key))
