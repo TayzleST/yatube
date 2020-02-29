@@ -38,7 +38,7 @@ class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comment_post", verbose_name='комментарий')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comment_author", verbose_name='автор комментария')
     text = models.TextField(verbose_name='текст')
-    pub_date = models.DateTimeField("date comment", auto_now_add=True)
+    created = models.DateTimeField('created', auto_now_add=True)
 
 
 class Follow(models.Model):
