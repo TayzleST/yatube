@@ -5,9 +5,10 @@
 <main role="main" class="container">
 <div class="row">
     <div class="col-md-9">
-        <h1>Записи сообщества: {{ group.title }}
+        <i><h2>Записи сообщества:</i>
+        <u><h1>{{ group.title }}</h1></u></h2>
         <br>
-        "{{ group.description }}"</h1>
+        <p>{{ group.description }}</p>
 
         <!-- Вывод ленты записей -->
         {% for post in page %}

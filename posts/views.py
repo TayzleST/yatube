@@ -184,10 +184,17 @@ def follow_index(request):
 
 @login_required
 def profile_follow(request, username):
+    # проверка, что пользователь еще не подписан на выбранного автора
+    follow = Follow.objects.filter(user=request.user)
+    for item in follow:
+        if item.author.username == username:
+            return redirect('profile', username=username)
+            break
     # проверка, что автор сам на себя не подпишется (сделал дополнительно, так как 
     # если автор совпадает с текущим пользователем, то кнопка подписки
     # не отображается на странице. Стоит условие в шаблоне)
     if request.user.username != username:
+        # создание новой записи
         author = User.objects.get(username=username)
         user = User.objects.get(username=request.user.username)
         Follow.objects.create(author=author, user=user)
