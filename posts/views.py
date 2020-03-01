@@ -19,14 +19,13 @@ def index(request):
     page_number = request.GET.get('page') # переменная в URL с номером запрошенной страницы
     page = paginator.get_page(page_number) # получить записи с нужным смещением  
     if request.user.is_authenticated:
-        # узнаем, подписан ли на кого-то человек, просматривающий страницу
-        follow = Follow.objects.filter(user=request.user).count()
-        if follow: # если подписан - переходит на страницу с подписанными авторами
-            return render(request, 'index.html', {'page': page,
-                                          'paginator': paginator, 'follow': True})
-    # если не авторизован или не подписан, ссылка с переходом не отобразится
-    return render(request, 'index.html', {'page': page,
-                                          'paginator': paginator, 'follow': False})
+        # узнаем, подписан ли на кого-то залогиненный пользователь
+        follow = Follow.objects.filter(user=request.user).exists()
+        # если подписан - переходит на страницу с подписанными авторами
+        return render(request, 'index.html', {'page': page,
+                                          'paginator': paginator, 'follow': follow,})
+    # если не залогинен, меню не отображается, follow передавать не нужно
+    return render(request, 'index.html', {'page': page, 'paginator': paginator,})
 
 
 def group_posts(request, slug):
