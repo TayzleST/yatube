@@ -299,13 +299,12 @@ class FollowTest(TestCase):
         # залогинем testuser2 и проверим, отобразилась ли запись 
         # пользователя testuser1 без подписки
         self.client.login(username='testuser2', password='23456')
-        response = self.client.get('/follow/', )
-        self.assertRedirects(response, '/') # произошел редирект на главную
-        # подпишем testuser2 на testuser1 и повторим запрос
-        self.client.get('/testuser2/follow', )
-        self.client.login(username='testuser2', password='23456')
         response = self.client.get('/follow/', follow=True)
-        self.assertEqual(response.status_code, 200) # редиректа нет, код 200
+        self.assertNotContains(response, text="Hello, world!")
+        # подпишем testuser2 на testuser1 и повторим запрос
+        response = self.client.get('/testuser1/follow', follow=True)
+        # после подписывания редирект на профиль автора
+        self.assertRedirects(response, '/testuser1/') 
         # проверим отображение старого и нового поста testuser1 на ленте testuser2
         self.assertContains(response, text="It s driving me crazy!")
         self.assertContains(response, text="Hello, world!")
@@ -313,12 +312,8 @@ class FollowTest(TestCase):
         # подпишем testuser3 на testuser2 и проверим, что у него
         # в ленте не отображается пост testuser1, а только пост testuser2
         self.client.login(username='testuser3', password='34567')
-        response = self.client.get('/follow/', )
-        self.assertRedirects(response, '/') # произошел редирект на главную
         # подпишем testuser3 на testuser2 и повторим запрос
-        self.client.get('/testuser2/follow', )
-        response = self.client.get('/follow/', follow=True)
-        self.assertEqual(response.status_code, 200) # редиректа нет, код 200
+        response = self.client.get('/testuser2/follow',follow=True )
         # testuser3 НЕ должен видеть пост testuser1
         self.assertNotContains(response, text="Hello, world!")
         # testuser3 должен видеть пост testuser2

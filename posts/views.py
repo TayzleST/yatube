@@ -24,8 +24,8 @@ def index(request):
         # если подписан - переходит на страницу с подписанными авторами
         return render(request, 'index.html', {'page': page,
                                           'paginator': paginator, 'follow': follow,})
-    # если не залогинен, меню не отображается, follow передавать не нужно
-    return render(request, 'index.html', {'page': page, 'paginator': paginator,})
+    # если не залогинен, меню не отображается, follow передаем, чтобы кеш нормально отрабатывал
+    return render(request, 'index.html', {'page': page, 'paginator': paginator, 'follow': False})
 
 
 def group_posts(request, slug):
@@ -167,19 +167,18 @@ def add_comment(request, username, post_id):
 
 @login_required
 def follow_index(request):
-    # проверка, что пользователь подписан на других авторов
-    follow_check = Follow.objects.filter(user=request.user).count()
-    if follow_check:
-        follow = get_list_or_404(Follow, user=request.user)
-        author_list = [item.author for item in follow]
-        post_list = Post.objects.select_related('author','group').filter(
-                    author__in=author_list).order_by("-pub_date").all().annotate(
-                    comment_count = Count('comment_post'))
-        paginator = Paginator(post_list, 10) # показывать по 10 записей на странице.
-        page_number = request.GET.get('page') # переменная в URL с номером запрошенной страницы
-        page = paginator.get_page(page_number) # получить записи с нужным смещением
-        return render(request, 'follow.html', {'page': page, 'paginator': paginator})
-    return redirect('index')
+    # отдаем в шаблон посты избранных авторов,
+    # если избранных авторов нет, отобразится пустая страница
+    follow = Follow.objects.filter(user=request.user)
+    author_list = [item.author for item in follow]
+    post_list = Post.objects.select_related('author','group').filter(
+                author__in=author_list).order_by("-pub_date").all().annotate(
+                comment_count = Count('comment_post'))
+    paginator = Paginator(post_list, 10) # показывать по 10 записей на странице.
+    page_number = request.GET.get('page') # переменная в URL с номером запрошенной страницы
+    page = paginator.get_page(page_number) # получить записи с нужным смещением
+    return render(request, 'follow.html', {'page': page, 'paginator': paginator})
+
 
 @login_required
 def profile_follow(request, username):
