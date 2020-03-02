@@ -4,7 +4,7 @@
 {% block title %} Последние обновления {% endblock %}
 
 {% block content %}
-    {% cache 20 index_page page.number follow%}
+    {% cache 20 index_page page.number %}
     
     <main role="main" class="container">
         {% include "menu.html" with index=False%}

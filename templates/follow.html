@@ -4,7 +4,6 @@
 {% block title %}Записи по подписке{% endblock %}
 
 {% block content %}
-    {% cache 20 follow_page page.number%}
     
     <main role="main" class="container">
         {% include "menu.html" with index=True %}
@@ -24,8 +23,6 @@
                 {% if page.has_other_pages %}
                     {% include "paginator.html" with items=page paginator=paginator%}
                 {% endif %}
-
-        {% endcache %} 
     </div>
 </div>
 </main>

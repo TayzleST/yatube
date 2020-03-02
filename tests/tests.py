@@ -244,8 +244,8 @@ class CacheTest(TestCase):
 
     def test_index_cache_alternative_method(self):
         # второй способ, решил написать отдельно.
-        key = make_template_fragment_key('index_page', [1, False]) # аргументы [1, False], так как в шаблоне 
-                                                      # добавили номер страницы из паджинатора и флаг follow
+        key = make_template_fragment_key('index_page', [1]) # аргумент [1], так как в шаблоне 
+                                                      # добавили номер страницы из паджинатора 
         self.assertFalse(cache.get(key))
         response = self.client.get('/')
         self.assertTrue(cache.get(key))
@@ -300,20 +300,27 @@ class FollowTest(TestCase):
         # пользователя testuser1 без подписки
         self.client.login(username='testuser2', password='23456')
         response = self.client.get('/follow/', follow=True)
-        self.assertNotContains(response, text="Hello, world!")
-        # подпишем testuser2 на testuser1 и повторим запрос
-        response = self.client.get('/testuser1/follow', follow=True)
-        # после подписывания редирект на профиль автора
-        self.assertRedirects(response, '/testuser1/') 
-        # проверим отображение старого и нового поста testuser1 на ленте testuser2
+        self.assertNotContains(response, text="Hello, world!") # НЕ отобразилась запись testuser1
+        self.assertNotContains(response, text="I ll be back") # testuser2 НЕ должен видеть свою запись в ленте
+        # если зайти на страницу со всеми авторами, testuser2 должен видеть обе записи
+        response = self.client.get('/', follow=True)
+        self.assertContains(response, text="Hello, world!") 
+        self.assertContains(response, text="I ll be back") 
+        # testuser2 подписывается на testuser1 и заходит на свою ленту
+        self.client.get('/testuser1/follow', follow=True)
+        response = self.client.get('/follow/', follow=True)
+        # проверяем отображение старого и нового поста testuser1 на ленте testuser2
         self.assertContains(response, text="It s driving me crazy!")
         self.assertContains(response, text="Hello, world!")
+        # проверяем отсутсвие своего поста на ленте подписки
+        self.assertNotContains(response, text="I ll be back")
         
         # подпишем testuser3 на testuser2 и проверим, что у него
         # в ленте не отображается пост testuser1, а только пост testuser2
         self.client.login(username='testuser3', password='34567')
-        # подпишем testuser3 на testuser2 и повторим запрос
-        response = self.client.get('/testuser2/follow',follow=True )
+        # подпишем testuser3 на testuser2 и проверим ленту новостей testuser3
+        self.client.get('/testuser2/follow',follow=True )
+        response = self.client.get('/follow/', follow=True)
         # testuser3 НЕ должен видеть пост testuser1
         self.assertNotContains(response, text="Hello, world!")
         # testuser3 должен видеть пост testuser2
