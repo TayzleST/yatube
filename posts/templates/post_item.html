@@ -37,7 +37,7 @@
                                     Комментариев: {{ post.comment_count }}
                                 </a>
                             {% endif %}
-                        {% elif user.is_authenticated %}
+                        {% else %}
                             <a class="btn btn-sm text-muted" href="{% url 'post' post.author.username post.id %}" role="button">
                                 {% if post.comment_count %}
                                 Комментариев: {{ post.comment_count }} 

@@ -1,4 +1,4 @@
-from django.test import TestCase, Client, RequestFactory
+from django.test import TestCase, Client, RequestFactory, override_settings
 from django.core import mail
 from django.urls import reverse
 from django.conf import settings
@@ -40,7 +40,8 @@ class EmailTest(TestCase):
         self.assertEqual(mail.outbox[0].from_email, 'yatube@mail.ru')
         self.assertEqual(mail.outbox[0].to, ['terminator@mail.ru'])
     
-
+# используем для отключения кэша во время теста    
+@override_settings(CACHES=settings.TEST_CACHES)
 class PostViewTest(TestCase):
     '''
     Проверка правильности отображения страниц при создании/редактировании постов
@@ -50,9 +51,7 @@ class PostViewTest(TestCase):
         self.user = User.objects.create_user(username="sarah", 
                                              email="connor.s@skynet.com", password="12345")
         self.post = Post.objects.create(text="It's driving me crazy!", author=self.user)
-    
-    def tearDown(self):
-        cache.clear()
+        
 
     #Проверка, что после регистрации пользователя создается его персональная страница (profile)
     def test_profile_after_signup(self):
@@ -229,7 +228,7 @@ class CacheTest(TestCase):
     '''  
     def tearDown(self):
         cache.clear()
-
+    
     def test_index_cache(self):
         # проверка, что главная страница кэшируется
         # проверяем, что в кеше ничего нет
@@ -244,8 +243,8 @@ class CacheTest(TestCase):
 
     def test_index_cache_alternative_method(self):
         # второй способ, решил написать отдельно.
-        key = make_template_fragment_key('index_page', [1, False]) # аргументы [1, False], так как в шаблоне 
-                                                      # добавили номер страницы из паджинатора и флаг follow
+        key = make_template_fragment_key('index_page', [1]) # аргумент [1], так как в шаблоне 
+                                                      # добавили номер страницы из паджинатора 
         self.assertFalse(cache.get(key))
         response = self.client.get('/')
         self.assertTrue(cache.get(key))
@@ -277,7 +276,7 @@ class FollowTest(TestCase):
         # проверяем, что в базе с подписками Follow нет записей
         self.assertEqual(Follow.objects.count(), 0)
         # подписываем testuser1 на testuser2
-        response = self.client.get('/testuser2/follow', follow=True)
+        response = self.client.get('/testuser2/follow/', follow=True)
         self.assertRedirects(response, '/testuser2/')
         # проверяем, что в базе с подписками Follow появилась одна запись
         self.assertEqual(Follow.objects.count(), 1)
@@ -300,20 +299,27 @@ class FollowTest(TestCase):
         # пользователя testuser1 без подписки
         self.client.login(username='testuser2', password='23456')
         response = self.client.get('/follow/', follow=True)
-        self.assertNotContains(response, text="Hello, world!")
-        # подпишем testuser2 на testuser1 и повторим запрос
-        response = self.client.get('/testuser1/follow', follow=True)
-        # после подписывания редирект на профиль автора
-        self.assertRedirects(response, '/testuser1/') 
-        # проверим отображение старого и нового поста testuser1 на ленте testuser2
+        self.assertNotContains(response, text="Hello, world!") # НЕ отобразилась запись testuser1
+        self.assertNotContains(response, text="I ll be back") # testuser2 НЕ должен видеть свою запись в ленте
+        # если зайти на страницу со всеми авторами, testuser2 должен видеть обе записи
+        response = self.client.get('/', follow=True)
+        self.assertContains(response, text="Hello, world!") 
+        self.assertContains(response, text="I ll be back") 
+        # testuser2 подписывается на testuser1 и заходит на свою ленту
+        self.client.get('/testuser1/follow', follow=True)
+        response = self.client.get('/follow/', follow=True)
+        # проверяем отображение старого и нового поста testuser1 на ленте testuser2
         self.assertContains(response, text="It s driving me crazy!")
         self.assertContains(response, text="Hello, world!")
+        # проверяем отсутсвие своего поста на ленте подписки
+        self.assertNotContains(response, text="I ll be back")
         
         # подпишем testuser3 на testuser2 и проверим, что у него
         # в ленте не отображается пост testuser1, а только пост testuser2
         self.client.login(username='testuser3', password='34567')
-        # подпишем testuser3 на testuser2 и повторим запрос
-        response = self.client.get('/testuser2/follow',follow=True )
+        # подпишем testuser3 на testuser2 и проверим ленту новостей testuser3
+        self.client.get('/testuser2/follow',follow=True )
+        response = self.client.get('/follow/', follow=True)
         # testuser3 НЕ должен видеть пост testuser1
         self.assertNotContains(response, text="Hello, world!")
         # testuser3 должен видеть пост testuser2
