@@ -1,4 +1,4 @@
-from django.test import TestCase, Client, RequestFactory
+from django.test import TestCase, Client, RequestFactory, override_settings
 from django.core import mail
 from django.urls import reverse
 from django.conf import settings
@@ -13,6 +13,7 @@ from posts.views import post_edit
 
 
 # Пользователь регистрируется и ему отправляется письмо с подтверждением регистрации
+
 class EmailTest(TestCase):
     '''
     Проверка регистрации и правильности заполнения письма об успешной регистрации
@@ -40,7 +41,8 @@ class EmailTest(TestCase):
         self.assertEqual(mail.outbox[0].from_email, 'yatube@mail.ru')
         self.assertEqual(mail.outbox[0].to, ['terminator@mail.ru'])
     
-
+# используем для отключения кэша во время теста    
+@override_settings(CACHES=settings.TEST_CACHES)
 class PostViewTest(TestCase):
     '''
     Проверка правильности отображения страниц при создании/редактировании постов
@@ -50,9 +52,7 @@ class PostViewTest(TestCase):
         self.user = User.objects.create_user(username="sarah", 
                                              email="connor.s@skynet.com", password="12345")
         self.post = Post.objects.create(text="It's driving me crazy!", author=self.user)
-    
-    def tearDown(self):
-        cache.clear()
+        
 
     #Проверка, что после регистрации пользователя создается его персональная страница (profile)
     def test_profile_after_signup(self):
@@ -229,7 +229,7 @@ class CacheTest(TestCase):
     '''  
     def tearDown(self):
         cache.clear()
-
+    
     def test_index_cache(self):
         # проверка, что главная страница кэшируется
         # проверяем, что в кеше ничего нет

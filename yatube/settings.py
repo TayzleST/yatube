@@ -164,3 +164,10 @@ CACHES = {
                 'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         }
 }
+
+# disable cache during testing
+TEST_CACHES = {
+     'default': {
+         'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+     }
+ }
