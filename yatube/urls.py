@@ -37,12 +37,13 @@ urlpatterns = [
     # ищем совпадения в файле django.contrib.auth.urls
     path("auth/", include("django.contrib.auth.urls")),
 ]
-
+    
+    # пути для flatpages
 urlpatterns += [
     path('about-us/', views.flatpage, {'url': '/about-us/'}, name='about'),
     path('terms/', views.flatpage, {'url': '/terms/'}, name='terms'),
 ]
-
+    # пути для flatpages
 urlpatterns += [
     path('about-author/', views.flatpage, {'url': '/about-author/'}, name='author'),
     path('about-spec/', views.flatpage, {'url': '/about-spec/'}, name='spec'),
@@ -53,6 +54,12 @@ urlpatterns += [
     path("", include("posts.urls")),
 ]
 
+    # пути для картинок пользователей
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+    # путь для django-debug-toolbar
+if settings.DEBUG:
+    import debug_toolbar # pylint: disable=import-error
+    urlpatterns += (path("__debug__/", include(debug_toolbar.urls)),)
