@@ -277,7 +277,7 @@ class FollowTest(TestCase):
         # проверяем, что в базе с подписками Follow нет записей
         self.assertEqual(Follow.objects.count(), 0)
         # подписываем testuser1 на testuser2
-        response = self.client.get('/testuser2/follow', follow=True)
+        response = self.client.get('/testuser2/follow/', follow=True)
         self.assertRedirects(response, '/testuser2/')
         # проверяем, что в базе с подписками Follow появилась одна запись
         self.assertEqual(Follow.objects.count(), 1)

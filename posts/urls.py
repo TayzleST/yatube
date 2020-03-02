@@ -25,7 +25,7 @@ urlpatterns = [
 urlpatterns += [
     # ссылки на подписку на авторов
     
-    path("<username>/follow", views.profile_follow, name="profile_follow"), 
+    path("<username>/follow/", views.profile_follow, name="profile_follow"), 
     path("<username>/unfollow", views.profile_unfollow, name="profile_unfollow"),
 ]
 
