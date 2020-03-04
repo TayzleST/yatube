@@ -1,4 +1,5 @@
 from django.test import TestCase, Client, RequestFactory, override_settings
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core import mail
 from django.urls import reverse
 from django.conf import settings
@@ -6,6 +7,7 @@ import datetime as dt
 from django.core.cache import cache
 from django.core.cache.backends import locmem
 from django.core.cache.utils import make_template_fragment_key
+import shutil
 
 from posts.models import Post, User, Group, Follow
 from users.views import SignUp
@@ -158,9 +160,11 @@ class FooterTest(TestCase):
         today = dt.datetime.today().year
         response = self.client.get('/')
         self.assertEqual(response.context['year'], today)
-        # проверяем исползование нужного темплейта
+        # проверяем использование нужного темплейта
         self.assertTemplateUsed(response, template_name='footer.html',)
-    
+
+
+@override_settings(MEDIA_ROOT=settings.MEDIA_ROOT_TEST) # добавляем временную папку для тестовых медиа-файлов
 class ImageTest(TestCase):
     '''
     Проверка правильности отображения картинок на страницах
@@ -176,6 +180,7 @@ class ImageTest(TestCase):
     
     def tearDown(self):
         cache.clear()
+        shutil.rmtree('media_test', ignore_errors=True) # удаление временной папки для тестовых медиа-файлов
 
     def test_image_on_pages(self):
         # проверим отсутствие картинки на главной странице, странице профайла,
@@ -194,6 +199,13 @@ class ImageTest(TestCase):
         img = 'tests/for_image_testing/favicon.png'
         with open(img, 'rb') as fp:
             self.client.post('/new/', {'text': "I ll be back!", 'image': fp, 'group': 1,}, follow=True)
+        '''
+        # Альтернативный способ через SimpleUploadedFile
+        fp = SimpleUploadedFile("favicon.png", content=open(
+            'tests/for_image_testing/favicon.png',"rb").read(), content_type="image/jpeg")
+        self.client.post(reverse("new_post"), {"author": self.post.author,
+                          "text": "I ll be back!","image": fp, 'group': 1, }, follow=True)
+        '''
         # проверяем, что картинка появилась на всех страницах
         response = self.client.get('/') # главная страница
         self.assertContains(response, "I ll be back!") # на всякий случай проверим новый текст

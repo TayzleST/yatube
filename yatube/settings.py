@@ -141,8 +141,11 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 # STATICFILES_DIR = os.path.join(BASE_DIR, 'static')
 
+# Media
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+# Temporary directory for testing media upload only. It will be empty after tests.
+MEDIA_ROOT_TEST = os.path.join(BASE_DIR, "media_test") 
 
 # Login
 LOGIN_URL = "/auth/login/"
