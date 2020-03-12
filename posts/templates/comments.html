@@ -1,6 +1,26 @@
-<!-- Форма добавления комментария -->
 {% load user_filters %}
 
+<!-- Комментарии -->
+{% if items %}
+
+{% for item in items %}
+<div class="media mb-4">
+<div class="media-body">
+        <h5 class="mt-0">
+        <a
+                href="{% url 'profile' item.author %}"
+                name="comment_{{ item.id }}"
+                >{{ item.author }}</a>
+        </h5>   
+        <h6 class="mt-0">{{ item.created }}</h6>
+        {{ item.text }}
+</div>
+</div>
+{% endfor %}
+
+{% endif %}
+
+<!-- Форма добавления комментария -->
 {% if user.is_authenticated %} 
 <div class="card my-4">
 <form
@@ -18,24 +38,4 @@
         </div>
 </form>
 </div>
-{% endif %}
-
-<!-- Комментарии -->
-{% if items %}
-
-{% for item in items %}
-<div class="media mb-4">
-<div class="media-body">
-        <h5 class="mt-0">
-        <a
-                href="{% url 'profile' item.author %}"
-                name="comment_{{ item.id }}"
-                >{{ item.author }}</a>
-        </h5>   
-        <h6 class="mt-0">{{ item.pub_date }}</h6>
-        {{ item.text }}
-</div>
-</div>
-{% endfor %}
-
 {% endif %}
