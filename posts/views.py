@@ -169,10 +169,20 @@ def add_comment(request, username, post_id):
 def follow_index(request):
     # отдаем в шаблон посты избранных авторов,
     # если избранных авторов нет, отобразится пустая страница
+    '''
+    # мой исходный вариант создания списка постов авторов, 
+    # на которых подписан текущий пользователь.
+    # Этот вариант приводит к 3 похожим обращениям к базе данных.
     follow = Follow.objects.filter(user=request.user)
     author_list = [item.author for item in follow]
     post_list = Post.objects.select_related('author','group').filter(
                 author__in=author_list).order_by("-pub_date").all().annotate(
+                comment_count = Count('comment_post'))
+    '''
+    # этот вариант создания списка постов приводит к меньшему количеству
+    # обращений к базе данных
+    post_list = Post.objects.select_related('author','group').filter(
+                author__following__user=request.user).order_by("-pub_date").all().annotate(
                 comment_count = Count('comment_post'))
     paginator = Paginator(post_list, 10) # показывать по 10 записей на странице.
     page_number = request.GET.get('page') # переменная в URL с номером запрошенной страницы
