@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load user_filters %}
+
 {% block title %}
 {% if post.id%}Редактировать запись{% else %}Добавить запись{% endif%}
 {% endblock %}
@@ -7,7 +9,33 @@
 {% block content %}
     <form method="POST" enctype="multipart/form-data"> 
     {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="{% if post.id%}Сохранить{% else %}Добавить{% endif%}">
+
+        <!--Вывод полей формы, пришлось вывести каждое отдельно, в отличии от примера
+        в теории, так как окно с текстом хотел большое сделать-->
+        <div class="form-group">
+            <div class="col-md-9 font-weight-bold">
+                {{ form.text.label_tag }}{{ form.text|addclass:"form-control" }}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-9 font-weight-bold">
+                {{ form.group.label_tag }}{{ form.group }}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-9 font-weight-bold">
+                {{ form.image.label_tag }}{{ form.image }}
+            </div>
+        </div>
+
+        <!--Кнопка добавить/сохранить-->
+        <div class="col-md-9">
+            <button type="submit" class="btn btn-primary">
+                {% if post.id%}Сохранить{% else %}Добавить{% endif%}
+            </button>
+        </div>
+
 </form>
 {% endblock %}
