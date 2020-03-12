@@ -40,7 +40,7 @@
             <div class="col-md-9">
 
         <!-- Вот он, новый include! -->
-        {% include "post_item.html" with post=post %}
+        {% include "post_item.html" with post=post full_text=True %}
         
         {% include 'comments.html' %}
      </div>

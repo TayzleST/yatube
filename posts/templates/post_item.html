@@ -12,7 +12,18 @@
                     <a name="post_{{ post.id }}" href="{% url 'profile' post.author.username %}">
                             <strong class="d-block text-gray-dark">Автор: @{{ post.author }}</strong>
                     </a>
-                    <p>{{ post.text|linebreaksbr }}</p>
+            <!-- укорачиваем пост на главной странице и отсылаем на страницу поста для дальнейшего чтения -->
+                    <!--дополнительно проверяем, куда пост выводится. Если на страницу конкретного
+                    поста, то нужно выдать текст полностью-->
+                    {% if full_text or post.text|length <= 300 %}
+                        <p>{{ post.text|linebreaksbr }}</p>
+                    {% else %}
+                        <p>{{ post.text|linebreaksbr|truncatechars:300 }} 
+                            <a class="btn btn-sm text-muted" href="{% url 'post' post.author.username post.id %}" role="button">
+                                Читать далее>>
+                            </a>
+                        </p>
+                    {% endif %}
             </p>
 
             <!-- Если пост относится к какому-нибудь сообществу, то отобразим ссылку на него через # -->
