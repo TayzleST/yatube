@@ -11,10 +11,12 @@
             <div class="card-body">
 
                 {% if form.errors %}
-                    {% for error in form.errors %}
-                        <div class="alert alert-danger" role="alert">
-                            {{ error|escape }}
-                        </div>
+                    {% for key_errors in form.errors.as_data.values %}
+                        {% for error in key_errors %}
+                            <div class="alert alert-danger d-inline-flex role="alert">
+                                <li>{{ error|join:'' }}</li>
+                            </div>    
+                        {% endfor %}
                     {% endfor %}
                 {% endif %}
 
