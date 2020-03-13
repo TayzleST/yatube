@@ -234,6 +234,16 @@ class ImageTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
+    def test_valid_image_size(self):
+        # проверка, что загружаемый файл не превышает 5 Мбайт.
+        # для проверки попробуем загрузить изображение размером 15 Мбайт 
+        # Если защита сработает - не будет редиректа(код 200)
+        img = 'tests/for_image_testing/foto15MB.jpg'
+        with open(img, 'rb') as fp:
+            response = self.client.post('/new/', {'text': "I ll be back!", 'image': fp, 'title': 'псы'})
+        self.assertEqual(response.status_code, 200)
+
+
 class CacheTest(TestCase):
     '''
     Проверка кеширования страниц
