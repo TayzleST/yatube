@@ -24,6 +24,17 @@
             </div>
         </div>
 
+            <!-- показываем ошибку, если загружаем файл более 5Мб -->
+            {% if form.errors %}
+                {% for key_errors in form.errors.as_data.values %}
+                    {% for error in key_errors %}
+                        <div class="alert alert-danger d-inline-flex role="alert">
+                            <li>{{ error|join:'' }}</li>
+                        </div>    
+                    {% endfor %}
+                {% endfor %}
+            {% endif %}
+
         <div class="form-group">
             <div class="col-md-9 font-weight-bold">
                 {{ form.image.label_tag }}{{ form.image }}
