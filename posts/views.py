@@ -149,6 +149,10 @@ def server_error(request):
 
 @login_required
 def add_comment(request, username, post_id):
+    # убираем возможность ручного ввода адреса /username/id/comment
+    # можно только через соответствующую кнопку "Добавить комментарий"
+    if request.method == 'GET':
+        return redirect('post', username=username, post_id=post_id)
     # Получаем пост, для которого будет создан комментарий
     post = get_object_or_404(Post, id=post_id)
     if request.method == 'POST':
