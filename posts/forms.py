@@ -1,4 +1,5 @@
 from django.forms import ModelForm
+from captcha.fields import CaptchaField
 
 from .models import Post, Comment
 
@@ -16,6 +17,7 @@ class CommentForm(ModelForm):
     '''
     Форма для создания комментариев
     '''
+    captcha = CaptchaField()
     class Meta:
         model = Comment
-        fields = ['text',]
+        fields = ['text', 'captcha']

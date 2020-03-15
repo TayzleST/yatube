@@ -79,12 +79,14 @@ def profile(request, username):
                              'following_count': following_count, 'follower_count': follower_count})
 
 
-def post_view(request, username, post_id):
+def post_view(request, username, post_id, form=None):
     # Страница просмотра выбранного поста.
     profile = get_object_or_404(User, username=username)
     post = get_object_or_404(Post, id=post_id)
     # добавляем форму для комментирования
-    form = CommentForm(request.POST or None)
+    # проверям, что форма может быть уже заполнена комментарием, но не прошла валидацию в add_comment
+    if form is None:
+        form = CommentForm(request.POST or None)
     # комментарии к посту
     items = Comment.objects.select_related('post', 'author').filter(post=post)
     # счетчики подписки на авторов
@@ -165,8 +167,7 @@ def add_comment(request, username, post_id):
             return redirect('post', username=username, post_id=post_id)
     else:
         form = CommentForm(request.POST or None)
-    items = Comment.objects.select_related('post', 'author').filter(post=post)   
-    return render(request, 'post.html', {'form': form, 'post': post, 'items': items} )
+    return post_view(request, username, post_id, form=form)
 
 
 @login_required
