@@ -7,6 +7,10 @@ For more information on this file, see
 https://docs.djangoproject.com/en/2.2/howto/deployment/wsgi/
 """
 
+# import passwords
+from dotenv import load_dotenv
+load_dotenv()
+
 import os
 
 from django.core.wsgi import get_wsgi_application
