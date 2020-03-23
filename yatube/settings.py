@@ -187,3 +187,10 @@ TEST_CACHES = {
          'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
      }
  }
+
+
+# disable captcha
+# disable captcha during testing(you must manually set True)
+CAPTCHA_TEST_MODE = False
+# disable captcha form field for various uses (you must manually set True)
+DISABLE_CAPTCHA = False

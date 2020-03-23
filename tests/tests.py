@@ -1,17 +1,21 @@
-from django.test import TestCase, Client, RequestFactory, override_settings
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.core import mail
-from django.urls import reverse
-from django.conf import settings
 import datetime as dt
+import shutil
+from urllib.parse import urlencode
+
+import lxml.html
+import requests
+from django.conf import settings
+from django.core import mail
 from django.core.cache import cache
 from django.core.cache.backends import locmem
 from django.core.cache.utils import make_template_fragment_key
-import shutil
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import Client, RequestFactory, TestCase, override_settings
+from django.urls import reverse
 
-from posts.models import Post, User, Group, Follow
-from users.views import SignUp
+from posts.models import Follow, Group, Post, User
 from posts.views import post_edit
+from users.views import SignUp
 
 
 # Пользователь регистрируется и ему отправляется письмо с подтверждением регистрации
@@ -192,7 +196,8 @@ class ImageTest(TestCase):
         response = self.client.get('/group/dogs/') # страница группы
         self.assertNotContains(response, text='<img')
         response = self.client.get('/sarah/1/') # страница конкретной записи
-        self.assertNotContains(response, text='<img')
+        # !!! на странице конкретного поста одна картинка от капчи
+        self.assertContains(response, text='<img', count=1)
         # дополнительная очистка кеша, иначе тесты ниже не увидят измененную страницу сайта
         cache.clear()
         # создадим новую запись с текстом и картинкой
@@ -367,16 +372,41 @@ class CommentTest(TestCase):
     def test_logged_in_user_comments_only(self):
         # пробуем без логина создать комментарий для поста testuser1
         response = self.client.post(reverse('add_comment', kwargs={'username': 'testuser1', 'post_id': 1}),
-                                   {'text': "Hi, Sarah!"}, follow=True)
+                                   {'text': "Hi, Sarah!"})
         # у незалогиненного пользователя должен произойти редирект на страницу логина
         self.assertRedirects(response, '/auth/login/?next=/testuser1/1/comment',)
         # залогинем testuser2 и повторим создание комментария
         self.client.login(username='testuser2', password='23456')
         response = self.client.post(reverse('add_comment', kwargs={'username': 'testuser1', 'post_id': 1}),
-                                   {'text': "Hi, Sarah!"}, follow=True)
-        # должен вернуться код 200
+                                   {'text': "Hi, Sarah!"})
+        # должен вернуться код 200, так как из-за отсутсвия капчи редирект не произойдет
         self.assertEqual(response.status_code, 200,)
+        
+        '''изменение имеющихся данных в форме'''
+        # забираем данные формы из полученного response
+        page = lxml.html.fromstring(response.content)
+        form = page.forms[0]
+#        print(form.form_values())    !!!так можно просмотреть все ключи и значения в форме
+        # вставляем сервисное слово 'passed' для прохождения тестов
+        # предварительно нужно включить CAPTCHA_TEST_MODE = True в settings.py
+        form.fields['captcha_1'] = 'passed'
+        # собираем словарь данных для последующей вставки 'passed' в ответ капчи
+        data = urlencode({
+            'csrfmiddlewaretoken': form.fields['csrfmiddlewaretoken'],
+            'text': form.fields['text'],
+            'captcha_0': form.fields['captcha_0'],
+            'captcha_1': form.fields['captcha_1'],
+        })
+        # отправляем запрос с модифицированной капчей
+        response = self.client.post(reverse('add_comment', kwargs={'username': 'testuser1', 'post_id': 1}),
+                                   data=data, content_type="application/x-www-form-urlencoded")
+        # !!! появился редирект, значит сервисное слово 'passed' работает
+        self.assertEqual(response.status_code, 302, 
+                        msg='Проверьте, что в settings.py включен CAPTCHA_TEST_MODE = True')
+        self.assertRedirects(response, '/testuser1/1/',
+                            msg_prefix='Проверьте, что в settings.py включен CAPTCHA_TEST_MODE = True')
         # проверяем наличие поста и комментария к нему на странице поста
         response = self.client.get('/testuser1/1/')
         self.assertContains(response, text="It s driving me crazy!") # пост
-        self.assertContains(response, text="Hi, Sarah!") # комментарий к нему
+        self.assertContains(response, text="Hi, Sarah!",              
+                            msg_prefix='Проверьте, что в settings.py включен CAPTCHA_TEST_MODE = True') # комментарий к нему
