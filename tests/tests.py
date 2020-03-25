@@ -378,11 +378,18 @@ class CommentTest(TestCase):
         # залогинем testuser2 и повторим создание комментария
         self.client.login(username='testuser2', password='23456')
         response = self.client.post(reverse('add_comment', kwargs={'username': 'testuser1', 'post_id': 1}),
-                                   {'text': "Hi, Sarah!"})
+                                   {'text': "Hi, Sarah!",})
         # должен вернуться код 200, так как из-за отсутсвия капчи редирект не произойдет
         self.assertEqual(response.status_code, 200,)
         
-        '''изменение имеющихся данных в форме'''
+        # !!! Код ниже рабочий и является первым моим вариантом прохождения капчи через
+        # сервисное слово 'passed'. Но как выяснилось далее - необязательно получать через 
+        # парсинг captcha_0. Хоть у captcha_0 и есть значение, в режиме CAPTCHA_TEST_MODE = True
+        # для captcha_0 можно также поставить 'passed' и капча пройдет.
+        # Таким образом в client.post достаточно добавить словарь {'captcha_0': 'passed', 'captcha_1': 'passed'}
+        # Первый вариант закомментил на память) 
+        '''
+        # ИЗМЕНЕНИЕ ИМЕЮЩИХСЯ ДАННЫХ В ФОРМЕ
         # забираем данные формы из полученного response
         page = lxml.html.fromstring(response.content)
         form = page.forms[0]
@@ -392,15 +399,19 @@ class CommentTest(TestCase):
         form.fields['captcha_1'] = 'passed'
         # собираем словарь данных для последующей вставки 'passed' в ответ капчи
         data = urlencode({
-            'csrfmiddlewaretoken': form.fields['csrfmiddlewaretoken'],
+#            'csrfmiddlewaretoken': form.fields['csrfmiddlewaretoken'],    для тестов это поле django сама отключает
             'text': form.fields['text'],
             'captcha_0': form.fields['captcha_0'],
-            'captcha_1': form.fields['captcha_1'],
+            'captcha_1': 'passed',
         })
         # отправляем запрос с модифицированной капчей
         response = self.client.post(reverse('add_comment', kwargs={'username': 'testuser1', 'post_id': 1}),
                                    data=data, content_type="application/x-www-form-urlencoded")
         # !!! появился редирект, значит сервисное слово 'passed' работает
+        '''
+        # !!! появился редирект, значит сервисное слово 'passed' работает
+        response = self.client.post(reverse('add_comment', kwargs={'username': 'testuser1', 'post_id': 1}),
+                                   {'text': "Hi, Sarah!", 'captcha_0': 'passed', 'captcha_1': 'passed'})
         self.assertEqual(response.status_code, 302, 
                         msg='Проверьте, что в settings.py включен CAPTCHA_TEST_MODE = True')
         self.assertRedirects(response, '/testuser1/1/',
@@ -410,3 +421,4 @@ class CommentTest(TestCase):
         self.assertContains(response, text="It s driving me crazy!") # пост
         self.assertContains(response, text="Hi, Sarah!",              
                             msg_prefix='Проверьте, что в settings.py включен CAPTCHA_TEST_MODE = True') # комментарий к нему
+
