@@ -9,32 +9,40 @@ https://docs.djangoproject.com/en/2.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
-# import passwords
-from dotenv import load_dotenv
-load_dotenv()
-
-
 import os
+
+# import passwords
+import environ
+env = environ.Env(
+    # set casting, default value
+    DEBUG=(bool, False)
+)
+# reading .env file
+environ.Env.read_env()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY")
+# Raises django's ImproperlyConfigured exception if SECRET_KEY not in os.environ
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# False if not in os.environ
+DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    "[::1]",
-    "testserver",
-    "*",      # for ngrok
+    "130.193.36.25",
+    "blog-yatube.ml",
+    "www.blog-yatube.ml",
+#    "[::1]",
+#    "testserver",
+#    "*",      # for ngrok
 ]
 
 # IP адрес для django-debug-toolbar 
@@ -97,12 +105,14 @@ WSGI_APPLICATION = 'yatube.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
-
+# Parse database connection url strings like psql://user:pass@127.0.0.1:8458/db
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    # read os.environ['DATABASE_URL'] and raises ImproperlyConfigured exception if not found
+    'default': env.db(),
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#    }
 }
 
 
@@ -194,3 +204,5 @@ TEST_CACHES = {
 CAPTCHA_TEST_MODE = False
 # disable captcha form field for various uses (you must manually set True)
 DISABLE_CAPTCHA = False
+
+
