@@ -10,9 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 import os
+import environ
+import sentry_sdk
+
+from sentry_sdk.integrations.django import DjangoIntegration
+
 
 # import passwords
-import environ
 env = environ.Env(
     # set casting, default value
     DEBUG=(bool, False)
@@ -205,4 +209,8 @@ CAPTCHA_TEST_MODE = False
 # disable captcha form field for various uses (you must manually set True)
 DISABLE_CAPTCHA = False
 
-
+# sentry set up
+sentry_sdk.init(
+    dsn="https://645ed1652e8f461c82b0984836eabd0a@o427295.ingest.sentry.io/5371154", 
+    integrations=[DjangoIntegration()],
+)
