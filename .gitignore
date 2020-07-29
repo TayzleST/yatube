@@ -143,3 +143,6 @@ media/
 
 # local test files
 tests/for_image_testing
+
+# backup of yatube db
+yatube_backup.dump
