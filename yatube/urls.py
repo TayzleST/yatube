@@ -47,6 +47,7 @@ urlpatterns += [
 urlpatterns += [
     path('about-author/', views.flatpage, {'url': '/about-author/'}, name='author'),
     path('about-spec/', views.flatpage, {'url': '/about-spec/'}, name='spec'),
+    path('contacts/', views.flatpage, {'url': '/contacts/'}, name='contacts'),
 ]
 
     # путь для captcha
