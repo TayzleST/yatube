@@ -187,7 +187,7 @@ class TestGroupView:
             html
         ), 'Отредактируйте HTML-шаблон, не найдено название страницы `<title>Записи сообщества {{ название_группы }} | Yatube</title>`'
         assert re.search(
-            r'<\s*h1\s*>\s*' + group.title + r'\s*<\s*\/h1\s*>',
+            r'<\s*h2\s*>\s*' + group.title + r'\s*<\s*\/h2\s*>',
             html
         ), 'Отредактируйте HTML-шаблон, не найден заголовок группы `<h1>{{ название_группы }}</h1>`'
         assert re.search(

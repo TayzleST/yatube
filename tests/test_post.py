@@ -44,8 +44,8 @@ class TestPostView:
         comment_form_context = get_field_context(response.context, CommentForm)
         assert comment_form_context is not None, \
             'Проверьте, что передали форму комментария в контекст страницы `/<username>/<post_id>/` типа `CommentForm`'
-        assert len(comment_form_context.fields) == 1, \
-            'Проверьте, что форма комментария в контекстке страницы `/<username>/<post_id>/` состоит из одного поля'
+        assert len(comment_form_context.fields) == 2, \
+            'Проверьте, что форма комментария в контекстке страницы `/<username>/<post_id>/` состоит из двух полей (комментария и капчи)'
         assert 'text' in comment_form_context.fields, \
             'Проверьте, что форма комментария в контекстке страницы `/<username>/<post_id>/` содержится поле `text`'
         assert type(comment_form_context.fields['text']) == forms.fields.CharField, \

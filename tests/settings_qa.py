@@ -1,4 +1,4 @@
-from yatube.settings import os, BASE_DIR, DATABASES, CAPTCHA_TEST_MODE
+from yatube.settings import *
 
 DATABASES = {
     'default': {
