@@ -18,12 +18,16 @@
     ```
     pip install -r requirements.txt
     ```
-- задайте пароль для django, включите debug для отображения статики и выполните миграции
+- задайте пароль для django и выполните миграции
     ```
     export SECRET_KEY=12345
-    export DEBUG=True
     python manage.py makemigrations posts && python manage.py migrate
     ```
+- для корректного отображения статики включите DEBUG и создайте ссылку
+    ```
+    export DEBUG=True
+    ln -s static posts
+
 - запустите сервер и перейдите на страницу 127.0.0.1:8000
     ```
     python manage.py runserver
