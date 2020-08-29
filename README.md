@@ -1,5 +1,6 @@
 # Yatube
 ![Yatube%20workflow Actions Status](https://github.com/AlexanderNkn/yatube/workflows/Yatube%20workflow/badge.svg)
+
 Социальная сеть блогеров - учебный проект Яндекс.Практикум.
 
 ### Описание
@@ -19,15 +20,11 @@
     ```
     pip install -r requirements.txt
     ```
-- задайте пароль для django и выполните миграции
+- задайте пароль для django и выполните миграции и включите DEBUG для корректного отображения статики
     ```
     export SECRET_KEY=12345
     python manage.py makemigrations posts && python manage.py migrate
-    ```
-- для корректного отображения статики включите DEBUG и создайте ссылку
-    ```
     export DEBUG=True
-    ln -s $(pwd)/static posts
     ```
 - запустите сервер и перейдите на страницу 127.0.0.1:8000
     ```
