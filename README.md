@@ -8,25 +8,21 @@
 Сайт написан на Python с использованием Django, база данных на PostgreSQL. Вэб-интерфейс создан посредством Bootstrap. Добавление изображений через sorl-thumbnail. Проект покрыт тестами с использованием стандартной библиотеки unittest. Сайт развернут на сервисе Яндекс.Облако с использованием nginx и gunicorn. Ссылка на сайт https://blog-yatube.ml/ 
 
 ### Установка
-- склонируйте проект с реппозитория GitHub
+- склонируйте проект с реппозитория GitHub, перейдите в директорию yatube, создайте виртуальное окружение и активируйте его
     ```
     git clone https://github.com/AlexanderNkn/yatube
-    ```
-- перейдите в директорию yatube/
-    ```
     cd yatube/
-    ```
-- содайте виртуальное окружение и активируйте его
-    ```
     python3 -m venv venv && . venv/bin/activate
     ```
 - установите зависимости
     ```
     pip install -r requirements.txt
     ```
-- выполните миграции
+- задайте пароль для django, включите debug для отображения статики и выполните миграции
     ```
-    python manage.py migrate
+    export SECRET_KEY=12345
+    export DEBUG=True
+    python manage.py makemigrations posts && python manage.py migrate
     ```
 - запустите сервер и перейдите на страницу 127.0.0.1:8000
     ```
