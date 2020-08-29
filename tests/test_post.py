@@ -123,7 +123,8 @@ class TestPostEditView:
         return File(file_obj, name=name)
 
     @pytest.mark.django_db(transaction=True)
-    @override_settings(MEDIA_ROOT=settings.MEDIA_ROOT_TEST) # добавляем временную папку для тестовых медиа-файлов
+    # добавляем временную папку для тестовых медиа-файлов
+    @override_settings(MEDIA_ROOT=settings.MEDIA_ROOT_TEST)
     def test_post_edit_view_author_post(self, user_client, post_with_group):
         text = 'Проверка изменения поста!'
         try:
@@ -142,4 +143,5 @@ class TestPostEditView:
             'Проверьте, что вы изминили пост при отправки формы на странице `/<username>/<post_id>/edit/`'
         assert response.url.startswith(f'/{post_with_group.author.username}/{post_with_group.id}'),\
             'Проверьте, что перенаправляете на страницу поста `/<username>/<post_id>/`'
-        shutil.rmtree('media_test', ignore_errors=True) # удаление временной папки для тестовых медиа-файлов
+        # удаление временной папки для тестовых медиа-файлов
+        shutil.rmtree('media_test', ignore_errors=True)

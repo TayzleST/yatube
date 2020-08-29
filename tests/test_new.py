@@ -51,7 +51,8 @@ class TestNewView:
         return File(file_obj, name=name)
 
     @pytest.mark.django_db(transaction=True)
-    @override_settings(MEDIA_ROOT=settings.MEDIA_ROOT_TEST) # добавляем временную папку для тестовых медиа-файлов
+    # добавляем временную папку для тестовых медиа-файлов
+    @override_settings(MEDIA_ROOT=settings.MEDIA_ROOT_TEST)
     def test_new_view_post(self, user_client, user, group):
         text = 'Проверка нового поста!'
         try:
@@ -81,4 +82,5 @@ class TestNewView:
         response = user_client.post(url)
         assert response.status_code == 200, \
             'Проверьте, что на странице `/new/` выводите ошибки при неправильной заполненной формы `form`'
-        shutil.rmtree('media_test', ignore_errors=True) # удаление временной папки для тестовых медиа-файлов
+        # удаление временной папки для тестовых медиа-файлов
+        shutil.rmtree('media_test', ignore_errors=True)
