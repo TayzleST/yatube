@@ -1,0 +1,11 @@
+Django
+django-debug-toolbar
+django-environ
+django-simple-captcha
+gunicorn
+Pillow
+psycopg2-binary
+pytest-django
+sentry-sdk
+sorl-thumbnail
+requests
