@@ -26,8 +26,8 @@
 - для корректного отображения статики включите DEBUG и создайте ссылку
     ```
     export DEBUG=True
-    ln -s static posts
-
+    ln -s $(pwd)static posts
+    ```
 - запустите сервер и перейдите на страницу 127.0.0.1:8000
     ```
     python manage.py runserver
