@@ -5,6 +5,9 @@ from PIL import Image
 from django import forms
 from django.core.files.base import File
 from posts.models import Post
+import shutil
+from django.conf import settings
+from django.test import override_settings
 
 
 class TestNewView:
@@ -48,6 +51,7 @@ class TestNewView:
         return File(file_obj, name=name)
 
     @pytest.mark.django_db(transaction=True)
+    @override_settings(MEDIA_ROOT=settings.MEDIA_ROOT_TEST) # добавляем временную папку для тестовых медиа-файлов
     def test_new_view_post(self, user_client, user, group):
         text = 'Проверка нового поста!'
         try:
@@ -77,3 +81,4 @@ class TestNewView:
         response = user_client.post(url)
         assert response.status_code == 200, \
             'Проверьте, что на странице `/new/` выводите ошибки при неправильной заполненной формы `form`'
+        shutil.rmtree('media_test', ignore_errors=True) # удаление временной папки для тестовых медиа-файлов
