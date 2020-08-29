@@ -129,7 +129,7 @@ dmypy.json
 .pyre/
 
 # static files
-static/
+# static/
 
 # migrations
 posts/migrations/
@@ -139,10 +139,10 @@ users/migrations/
 .vscode/
 
 # media files
-media/
+# media/
 
 # local test files
-tests/for_image_testing
+# tests/for_image_testing
 
 # backup of yatube db
 yatube_backup.dump
