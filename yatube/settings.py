@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 import environ
 import sentry_sdk
+from django.core.exceptions import ImproperlyConfigured
 
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -44,14 +45,14 @@ ALLOWED_HOSTS = [
     "130.193.36.25",
     "blog-yatube.ml",
     "www.blog-yatube.ml",
-#    "[::1]",
-#    "testserver",
-#    "*",      # for ngrok
+    #    "[::1]",
+    #    "testserver",
+    #    "*",      # for ngrok
 ]
 
-# IP адрес для django-debug-toolbar 
+# IP адрес для django-debug-toolbar
 INTERNAL_IPS = [
-        "127.0.0.1",
+    "127.0.0.1",
 ]
 
 
@@ -109,14 +110,19 @@ WSGI_APPLICATION = 'yatube.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
-# Parse database connection url strings like psql://user:pass@127.0.0.1:8458/db
+
+def get_db():
+    ''' Set sqlite for development and postgresql for production'''
+    try:
+        # Parse database connection url strings like psql://user:pass@127.0.0.1:8458/db
+        # read os.environ['DATABASE_URL'] and raises ImproperlyConfigured exception if not found
+        return env.db()
+    except ImproperlyConfigured:
+        return {'ENGINE': 'django.db.backends.sqlite3','NAME': os.path.join(BASE_DIR, 'db.sqlite3'),}
+
+
 DATABASES = {
-    # read os.environ['DATABASE_URL'] and raises ImproperlyConfigured exception if not found
-    'default': env.db(),
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#    }
+    'default': get_db()
 }
 
 
@@ -165,11 +171,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # Temporary directory for testing media upload only. It will be empty after tests.
-MEDIA_ROOT_TEST = os.path.join(BASE_DIR, "media_test") 
+MEDIA_ROOT_TEST = os.path.join(BASE_DIR, "media_test")
 
 # Login
 LOGIN_URL = "/auth/login/"
-LOGIN_REDIRECT_URL = "index" 
+LOGIN_REDIRECT_URL = "index"
 # LOGOUT_REDIRECT_URL = "index"
 
 # Email
@@ -190,17 +196,17 @@ if DEBUG:
 
 # Cache
 CACHES = {
-        'default': {
-                'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        }
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
 }
 
 # disable cache during testing
 TEST_CACHES = {
-     'default': {
-         'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-     }
- }
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+}
 
 
 # disable captcha
@@ -211,6 +217,6 @@ DISABLE_CAPTCHA = False
 
 # sentry set up
 sentry_sdk.init(
-    dsn="https://645ed1652e8f461c82b0984836eabd0a@o427295.ingest.sentry.io/5371154", 
+    dsn="https://645ed1652e8f461c82b0984836eabd0a@o427295.ingest.sentry.io/5371154",
     integrations=[DjangoIntegration()],
 )
