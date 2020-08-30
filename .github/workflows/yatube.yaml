@@ -26,3 +26,5 @@ jobs:
       run: |
         pytest 
         pytest tests/tests.py
+      env: 
+        SECRET_KEY: 12345
