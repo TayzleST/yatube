@@ -1,5 +1,5 @@
 # Yatube
-![Yatube%20workflow Actions Status](https://github.com/AlexanderNkn/yatube/workflows/Yatube%20workflow/badge.svg)
+[![Yatube%20workflow Actions Status](https://github.com/AlexanderNkn/yatube/workflows/Yatube%20workflow/badge.svg)](https://github.com/AlexanderNkn/yatube/actions)
 
 Социальная сеть блогеров - учебный проект Яндекс.Практикум.
 
