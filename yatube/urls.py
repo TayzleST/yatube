@@ -22,8 +22,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 
-handler404 = "posts.views.page_not_found" # noqa
-handler500 = "posts.views.server_error" # noqa
+handler404 = "posts.views.page_not_found"  # noqa
+handler500 = "posts.views.server_error"  # noqa
 
 
 urlpatterns = [
@@ -33,26 +33,31 @@ urlpatterns = [
     path("about/", include("django.contrib.flatpages.urls")),
     # регистрация и авторизация
     path("auth/", include("users.urls")),
-    # если нужного шаблона для /auth не нашлось в файле users.urls — 
+    # если нужного шаблона для /auth не нашлось в файле users.urls —
     # ищем совпадения в файле django.contrib.auth.urls
     path("auth/", include("django.contrib.auth.urls")),
 ]
-    
-    # пути для flatpages
+
+# пути для flatpages
 urlpatterns += [
-    path('about-us/', views.flatpage, {'url': '/about-us/'}, name='about'),
-    path('terms/', views.flatpage, {'url': '/terms/'}, name='terms'),
+    path("about-us/", views.flatpage, {"url": "/about-us/"}, name="about"),
+    path("terms/", views.flatpage, {"url": "/terms/"}, name="terms"),
 ]
-    # пути для flatpages
+# пути для flatpages
 urlpatterns += [
-    path('about-author/', views.flatpage, {'url': '/about-author/'}, name='author'),
-    path('about-spec/', views.flatpage, {'url': '/about-spec/'}, name='spec'),
-    path('contacts/', views.flatpage, {'url': '/contacts/'}, name='contacts'),
+    path(
+        "about-author/",
+        views.flatpage,
+        {"url": "/about-author/"},
+        name="author",
+    ),
+    path("about-spec/", views.flatpage, {"url": "/about-spec/"}, name="spec"),
+    path("contacts/", views.flatpage, {"url": "/contacts/"}, name="contacts"),
 ]
 
-    # путь для captcha
+# путь для captcha
 urlpatterns += [
-    url(r'^captcha/', include('captcha.urls')),
+    url(r"^captcha/", include("captcha.urls")),
 ]
 
 urlpatterns += [
@@ -60,12 +65,17 @@ urlpatterns += [
     path("", include("posts.urls")),
 ]
 
-    # пути для картинок пользователей
+# пути для картинок пользователей
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(
+        settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
+    )
+    urlpatterns += static(
+        settings.STATIC_URL, document_root=settings.STATIC_ROOT
+    )
 
     # путь для django-debug-toolbar
 if settings.DEBUG:
-    import debug_toolbar # pylint: disable=import-error
+    import debug_toolbar  # pylint: disable=import-error
+
     urlpatterns += (path("__debug__/", include(debug_toolbar.urls)),)

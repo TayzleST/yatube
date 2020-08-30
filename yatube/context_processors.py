@@ -5,6 +5,4 @@ def year(request):
     """
     Добавляет переменную с текущим годом.
     """
-    return {
-        'year': dt.datetime.today().year
-    }
+    return {"year": dt.datetime.today().year}

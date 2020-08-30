@@ -7,7 +7,7 @@ urlpatterns = [
     # создание нового поста
     path("new/", views.new_post, name="new_post"),
     # вывод всех постов группы
-    path('group/<slug>/', views.group_posts, name='group_posts'),
+    path("group/<slug>/", views.group_posts, name="group_posts"),
     # Профайл пользователя
     path("<username>/", views.profile, name="profile"),
     # Просмотр записи
@@ -15,21 +15,34 @@ urlpatterns = [
     # редактирование выбранного поста
     path("<username>/<int:post_id>/edit", views.post_edit, name="post_edit"),
     # подтверждение удаления выбранного поста
-    path("<username>/<int:post_id>/confirm", views.post_confirm, name="post_confirm"),
+    path(
+        "<username>/<int:post_id>/confirm",
+        views.post_confirm,
+        name="post_confirm",
+    ),
     # удаление выбранного поста
-    path("<username>/<int:post_id>/delete", views.post_delete, name="post_delete"),
+    path(
+        "<username>/<int:post_id>/delete",
+        views.post_delete,
+        name="post_delete"
+    ),
     # комментарии от читателей
-    path("<username>/<int:post_id>/comment", views.add_comment, name="add_comment"),  
+    path(
+        "<username>/<int:post_id>/comment",
+        views.add_comment,
+        name="add_comment",
+    ),
 ]
 
 urlpatterns += [
     # ссылки на подписку на авторов
-    
-    path("<username>/follow/", views.profile_follow, name="profile_follow"), 
-    path("<username>/unfollow", views.profile_unfollow, name="profile_unfollow"),
+    path("<username>/follow/", views.profile_follow, name="profile_follow"),
+    path(
+        "<username>/unfollow", views.profile_unfollow, name="profile_unfollow"
+    ),
 ]
 
 urlpatterns += [
     # главная страница со всеми постами всех пользователей
-    path('', views.index, name='index'),
+    path("", views.index, name="index"),
 ]

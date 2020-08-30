@@ -1,6 +1,5 @@
 import datetime as dt
 import shutil
-
 # from urllib.parse import urlencode
 
 # import lxml.html
@@ -10,12 +9,12 @@ from django.core import mail
 from django.core.cache import cache
 from django.core.cache.backends import locmem
 from django.core.cache.utils import make_template_fragment_key
-
 # from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, RequestFactory, TestCase, override_settings
 from django.urls import reverse
 
 from posts.models import Follow, Group, Post, User
+# from posts.views import post_edit
 from users.views import SignUp
 
 
@@ -118,7 +117,6 @@ class PostViewTest(TestCase):
     # Проверка, что после публикации поста новая запись появляется на
     # главной странице сайта (index), на персональной странице пользователя (profile),
     # и на отдельной странице поста (post)
-
     def test_post_displayed_on_all_pages(self):
         """метод assertContains НЕ может искать выражения с апострофом, поэтому здесь используется
         assertEqual и искомое выражение вытаскиваем из контекста. Пример работы с assertContains
@@ -327,7 +325,7 @@ class CacheTest(TestCase):
         # проверяем, что в кеше ничего нет
         self.assertFalse(locmem._caches[""])
         # загружаем главную страницу и еще раз проверяем наличие кэша
-        # response = self.client.get("/")
+        response = self.client.get("/") # noqa
         self.assertTrue(locmem._caches[""])
         # проверяем, что ключ кэша соответстует установленному в index.html
         self.assertIn(
@@ -343,7 +341,7 @@ class CacheTest(TestCase):
         )  # аргумент [1], так как в шаблоне
         # добавили номер страницы из паджинатора
         self.assertFalse(cache.get(key))
-        # response = self.client.get("/")
+        response = self.client.get("/") # noqa
         self.assertTrue(cache.get(key))
 
 
