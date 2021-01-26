@@ -9,3 +9,4 @@ pytest-django
 sentry-sdk
 sorl-thumbnail
 requests
+coverage

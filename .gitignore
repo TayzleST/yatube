@@ -146,3 +146,10 @@ users/migrations/
 
 # backup of yatube db
 yatube_backup.dump
+
+# estimating test coverage
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover 
